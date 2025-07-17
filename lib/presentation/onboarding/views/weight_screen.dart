@@ -6,6 +6,8 @@ import 'package:lift_life/helper/nav_helper/nav_helper.dart';
 import 'package:lift_life/helper/routes.dart';
 import 'package:lift_life/presentation/onboarding/widget/onboarding_button.dart';
 import 'package:lottie/lottie.dart';
+import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/helper/sharedPreference_helper.dart';
 
 class WeightScreen extends StatefulWidget {
   const WeightScreen({super.key});
@@ -39,12 +41,12 @@ class _WeightScreenState extends State<WeightScreen> {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Lottie.asset(Assets.weightAnimation, height: 300, width: 300),
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -54,7 +56,7 @@ class _WeightScreenState extends State<WeightScreen> {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D3748),
+                        color: ColorHelper.textColor,
                       ),
                     ),
                   ),
@@ -62,7 +64,7 @@ class _WeightScreenState extends State<WeightScreen> {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!, width: 1),
+                      border: Border.all(color: ColorHelper.borderColor!, width: 1),
                     ),
                     child: TextField(
                       controller: _weightController,
@@ -79,21 +81,16 @@ class _WeightScreenState extends State<WeightScreen> {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF2D3748),
+                        color: ColorHelper.textColor,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'Weight (kg)',
-                        labelStyle: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 16,
-                        ),
                         prefixIcon: Icon(
                           Icons.scale,
-                          color: Colors.blue[600],
+                          color: ColorHelper.primaryColor,
                         ),
-                        suffixText: 'kg',
+                        suffixText: TextHelper.kg,
                         suffixStyle: TextStyle(
-                          color: Colors.grey[600],
+                          color: ColorHelper.borderColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -112,10 +109,17 @@ class _WeightScreenState extends State<WeightScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-              onboardingButton(text: 'Next', onPressed: () {
-                navigateToScreen( Routes.height_screen, replaceStack: false, arguments: {
-                  'weight': _weightController.text,
-                });
+              onboardingButton(text: 'Next', onPressed: () async {
+                if (_weightController.text.isNotEmpty) {
+                  final weight = double.tryParse(_weightController.text);
+                  if (weight != null) {
+                    await SharedPreferenceHelper.saveWeight(weight);
+                    
+                  } 
+                }
+                navigateToScreen( Routes.heightScreen, replaceStack: false, arguments: {
+                      'weight': _weightController.text,
+                    });
               }),
             ],
           ),
