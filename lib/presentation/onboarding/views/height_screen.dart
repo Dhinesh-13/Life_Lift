@@ -4,6 +4,9 @@ import 'package:lift_life/generated/assets.dart';
 import 'package:lift_life/helper/nav_helper/nav_helper.dart';
 import 'package:lift_life/helper/routes.dart';
 import 'package:lift_life/presentation/onboarding/widget/onboarding_button.dart';
+import 'package:lift_life/helper/TextHelper.dart';
+import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/helper/sharedPreference_helper.dart';
 
 class HeightScreen extends StatefulWidget {
   const HeightScreen({super.key});
@@ -35,7 +38,7 @@ class _HeightScreenState extends State<HeightScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF7F7F7),
+      backgroundColor: ColorHelper.backgroundColor,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -57,7 +60,7 @@ class _HeightScreenState extends State<HeightScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withAlpha((0.1 * 255).round()),
                       spreadRadius: 2,
                       blurRadius: 8,
                       offset: const Offset(0, 4),
@@ -69,11 +72,11 @@ class _HeightScreenState extends State<HeightScreen> {
                   children: [
                     Center(
                       child: const Text(
-                        'Enter Your Height',
+                        TextHelper.enterYourHeight,
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2D3748),
+                          color: ColorHelper.textColor,
                         ),
                       ),
                     ),
@@ -81,7 +84,7 @@ class _HeightScreenState extends State<HeightScreen> {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[300]!, width: 1),
+                        border: Border.all(color: ColorHelper.borderColor, width: 1),
                       ),
                       child: TextField(
                         controller: _heightController,
@@ -99,21 +102,17 @@ class _HeightScreenState extends State<HeightScreen> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF2D3748),
+                          color: ColorHelper.textColor,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Height (cm)',
-                          labelStyle: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 16,
-                          ),
+                        
                           prefixIcon: Icon(
                             Icons.height,
-                            color: Colors.blue[600],
+                            color: ColorHelper.primaryColor,
                           ),
-                          suffixText: 'cm',
+                          suffixText: TextHelper.cm,
                           suffixStyle: TextStyle(
-                            color: Colors.grey[600],
+                            color: ColorHelper.borderColor,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -137,7 +136,7 @@ class _HeightScreenState extends State<HeightScreen> {
                 children: [
                   Expanded(
                     child: onboardingButton(
-                      text: 'Back',
+                      text: TextHelper.back,
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -146,11 +145,17 @@ class _HeightScreenState extends State<HeightScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: onboardingButton(
-                      text: 'Next',
-                      onPressed: () {
-                        navigateToScreen(Routes.age_screen, replaceStack: false, arguments: {
-                          'height': _heightController.text,
-                        });
+                      text: TextHelper.next,
+                      onPressed: () async {
+                        if (_heightController.text.isNotEmpty) {
+                          final height = double.tryParse(_heightController.text);
+                          if (height != null) {
+                            await SharedPreferenceHelper.saveHeight(height);
+                          } 
+                        }
+                         navigateToScreen(Routes.ageScreen, replaceStack: false, arguments: {
+                              'height': _heightController.text,
+                            }); 
                       },
                     ),  
                   ),

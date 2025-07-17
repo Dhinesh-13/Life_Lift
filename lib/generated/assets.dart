@@ -6,4 +6,5 @@ class Assets {
   static const String ageImage= 'assets/images/onboarding/age.webp';
   static const String heightImage = 'assets/images/onboarding/height.webp';
   static const String genderAnimation = 'assets/lottie/Gender.json';
+  static const String fitnessGoalsImage = 'assets/lottie/fitnessGoal.json';
 }
