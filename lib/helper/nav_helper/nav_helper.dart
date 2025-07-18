@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:lift_life/helper/nav_helper/nav_observer.dart';
 import 'package:lift_life/helper/routes.dart';
 import 'package:lift_life/presentation/dashboard/views/dashboard_screen.dart';
+import 'package:lift_life/presentation/dashboard/views/cycling_screen.dart';
+import 'package:lift_life/presentation/dashboard/views/gym_screen.dart';
+import 'package:lift_life/presentation/dashboard/views/walking_screen.dart';
 import 'package:lift_life/presentation/onboarding/views/age_screen.dart';
 import 'package:lift_life/presentation/onboarding/views/fitnessGoals_screen.dart';
 import 'package:lift_life/presentation/onboarding/views/gender_screen.dart';
@@ -29,7 +32,7 @@ class AppRouter {
             GoRoute(
               path: Routes.initialLocation,
               name: Routes.initialLocation,
-              builder: (context, state) {   
+              builder: (context, state) {
                 return const SplashScreen();
               },
             ),
@@ -73,6 +76,27 @@ class AppRouter {
               name: Routes.dashboardScreen,
               builder: (context, state) {
                 return const DashboardScreen();
+              },
+            ),
+            GoRoute(
+              path: Routes.getRouterPath(Routes.walkingScreen),
+              name: Routes.walkingScreen,
+              builder: (context, state) {
+                return const WalkingScreen();
+              },
+            ),
+            GoRoute(
+              path: Routes.getRouterPath(Routes.cyclingScreen),
+              name: Routes.cyclingScreen,
+              builder: (context, state) {
+                return const CyclingScreen();
+              },
+            ),
+            GoRoute(
+              path: Routes.getRouterPath(Routes.gymScreen),
+              name: Routes.gymScreen,
+              builder: (context, state) {
+                return const GymScreen();
               },
             ),
           ],

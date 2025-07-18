@@ -6,5 +6,8 @@ class Routes {
   static const String genderScreen = '/genderScreen';
   static const String fitnessGoalScreen = '/fitnessGoalScreen';
   static const String dashboardScreen = '/dashboardScreen';
+  static const String walkingScreen = '/walkingScreen';
+  static const String cyclingScreen = '/cyclingScreen';
+  static const String gymScreen = '/gymScreen';
     static getRouterPath(String routeName) => '/$routeName';
 }

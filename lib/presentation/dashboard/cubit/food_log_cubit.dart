@@ -58,9 +58,9 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<dynamic> addMealFromImage(File image) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.detectFoodFromImage(image);
-    
+
     result.fold(
       (failure) {
         emit(
