@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lift_life/presentation/dashboard/cubit/food_log_cubit.dart';
-import 'package:lift_life/helper/TextHelper.dart';
-import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/presentation/dashboard/widgets/food_conformation_screen.dart';
 
 class CaloriesTrackerScreen extends StatefulWidget {
   const CaloriesTrackerScreen({super.key});
@@ -32,20 +31,60 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
       setState(() {
         _image = File(pickedFile.path);
       });
-      scanImage();
+      await scanImage();
     }
   }
 
-  void scanImage() async {
-    final result = await context.read<FoodLogCubit>().addMealFromImage(_image!);
-    print("API Response: $result");
-    
-    // Show success or error message
-    if (mounted) {
-      result.fold(
-        (error) => _showErrorSnackbar(error),
-        (foodItem) => _showSuccessSnackbar('${foodItem.name} added successfully!'),
-      );
+  Future<void> scanImage() async {
+    if (_image == null) return;
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Text('Analyzing image...'),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      // Call your API to detect food from image
+      final result = await context.read<FoodLogCubit>().addMealFromImage(_image!);
+      
+      // Close loading dialog
+      Navigator.pop(context);
+      
+      if (mounted) {
+        result.fold(
+          (error) => _showErrorSnackbar(error),
+          (detectedFood) {
+            // Navigate to confirmation screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FoodConfirmationScreen(
+                  imageFile: _image!,
+                  detectedFoodName: detectedFood.name,
+                  baseCalories: detectedFood.calories,
+                  baseProtein: detectedFood.protein,
+                  baseCarbs: detectedFood.carbs,
+                  baseFat: detectedFood.fat,
+                ),
+              ),
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // Close loading dialog
+      Navigator.pop(context);
+      _showErrorSnackbar('Failed to analyze image: $e');
     }
   }
 
@@ -53,7 +92,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: ColorHelper.errorColor,
+        backgroundColor: Colors.red,
         duration: Duration(seconds: 3),
       ),
     );
@@ -63,7 +102,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: ColorHelper.successColor,
+        backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
       ),
     );
@@ -74,6 +113,13 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
       context: context,
       builder: (context) => Wrap(
         children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Select Image Source',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
           ListTile(
             leading: Icon(Icons.camera_alt),
             title: Text('Camera'),
@@ -90,6 +136,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
               getImage(ImageSource.gallery);
             },
           ),
+          SizedBox(height: 20),
         ],
       ),
     );
@@ -99,7 +146,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(TextHelper.calorieTrackerTitle),
+        title: Text('Calorie Tracker'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -110,7 +157,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  TextHelper.todaysTrackers,
+                  "Today's trackers",
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 SizedBox(height: 16),
@@ -132,7 +179,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  TextHelper.dailySummary,
+                                  'Daily Summary',
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                                 SizedBox(height: 12),
@@ -140,24 +187,24 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildNutritionItem(
-                                      TextHelper.calories,
+                                      'Calories',
                                       '${state.totalCalories.toStringAsFixed(0)}',
-                                      ColorHelper.caloriesColor,
+                                      Colors.orange,
                                     ),
                                     _buildNutritionItem(
-                                      TextHelper.protein,
+                                      'Protein',
                                       '${state.totalProtein.toStringAsFixed(1)}g',
-                                      ColorHelper.proteinColor,
+                                      Colors.red,
                                     ),
                                     _buildNutritionItem(
-                                      TextHelper.carbs,
+                                      'Carbs',
                                       '${state.totalCarbs.toStringAsFixed(1)}g',
-                                      ColorHelper.carbsColor,
+                                      Colors.blue,
                                     ),
                                     _buildNutritionItem(
-                                      TextHelper.fat,
+                                      'Fat',
                                       '${state.totalFat.toStringAsFixed(1)}g',
-                                      ColorHelper.fatColor,
+                                      Colors.green,
                                     ),
                                   ],
                                 ),
@@ -170,7 +217,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
                         
                         // Meals Section
                         Text(
-                          '${TextHelper.meals} (${state.meals.length})',
+                          'Meals (${state.meals.length})',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         SizedBox(height: 16),
@@ -182,22 +229,22 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
                             padding: EdgeInsets.all(12),
                             margin: EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
-                              color: ColorHelper.errorColor,
+                              color: Colors.red.shade100,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: ColorHelper.errorColor),
+                              border: Border.all(color: Colors.red.shade300),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.error, color: ColorHelper.errorColor),
+                                Icon(Icons.error, color: Colors.red.shade700),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     state.error!,
-                                    style: TextStyle(color: ColorHelper.errorColor),
+                                    style: TextStyle(color: Colors.red.shade700),
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.close, color: ColorHelper.errorColor),
+                                  icon: Icon(Icons.close, color: Colors.red.shade700),
                                   onPressed: () {
                                     context.read<FoodLogCubit>().clearError();
                                   },
@@ -220,14 +267,14 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
                                 ),
                                 SizedBox(height: 16),
                                 Text(
-                                  TextHelper.noMealsLogged,
+                                  'No meals logged today',
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: Colors.grey.shade600,
                                   ),
                                 ),
                                 SizedBox(height: 8),
                                 Text(
-                                  TextHelper.addFirstMealHint,
+                                  'Tap the camera button to add your first meal',
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Colors.grey.shade500,
                                   ),
@@ -247,10 +294,10 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
                                 margin: EdgeInsets.only(bottom: 8),
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundColor: ColorHelper.caloriesColor,
+                                    backgroundColor: Colors.orange.shade100,
                                     child: Icon(
                                       Icons.restaurant,
-                                      color: ColorHelper.backgroundColor,
+                                      color: Colors.orange.shade700,
                                     ),
                                   ),
                                   title: Text(
@@ -262,18 +309,18 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
                                   ),
                                   trailing: PopupMenuButton<String>(
                                     onSelected: (value) {
-                                      if (value == TextHelper.delete) {
+                                      if (value == 'delete') {
                                         context.read<FoodLogCubit>().deleteMeal(meal.id);
                                       }
                                     },
                                     itemBuilder: (context) => [
                                       PopupMenuItem(
-                                        value: TextHelper.delete,
+                                        value: 'delete',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.delete, color: ColorHelper.errorColor),
+                                            Icon(Icons.delete, color: Colors.red),
                                             SizedBox(width: 8),
-                                            Text(TextHelper.delete),
+                                            Text('Delete'),
                                           ],
                                         ),
                                       ),

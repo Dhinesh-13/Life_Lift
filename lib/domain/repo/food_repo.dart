@@ -30,7 +30,7 @@ class FoodRepositoryImpl implements FoodRepository {
   Future<Either<String, FoodItem>> detectFoodFromImage(File image) async {
     try {
       final result = await _foodService.detectFoodAndCalories(image);
-      
+
       return result.fold(
         (error) => Left(error),
         (foodItem) async {

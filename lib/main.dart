@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/domain/repo/food_repo.dart';
 import 'package:lift_life/helper/nav_helper/nav_helper.dart';
 import 'package:lift_life/presentation/dashboard/cubit/food_log_cubit.dart';
+import 'package:lift_life/presentation/dashboard/cubit/step_count_cubit.dart';
 import 'package:lift_life/service/food_services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
@@ -19,8 +20,7 @@ Future<void> _loadEnvironmentFile() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
- await _loadEnvironmentFile();
-
+  await _loadEnvironmentFile();
 
   final apiKey = dotenv.env['GOOGLE_AI_API_KEY'];
   if (apiKey != null && apiKey.isNotEmpty) {
@@ -35,10 +35,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => FoodLogCubit(
-          FoodRepositoryImpl(FoodService()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => FoodLogCubit(FoodRepositoryImpl(FoodService())),
         ),
+        BlocProvider(create: (context) => StepCountCubit()),
+      ],
       child: MaterialApp.router(
         title: 'Flutter Demo',
         theme: ThemeData(primarySwatch: Colors.blue),
