@@ -76,7 +76,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
             // Gym Card
             _buildActivityCard(
               context,
-              title: 'Gym',
+              title: 'Workout',
               subtitle: 'Log your workout sessions',
               icon: Icons.fitness_center,
               color: Colors.red,

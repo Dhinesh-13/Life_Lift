@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dartz/dartz.dart';
 import 'package:lift_life/data/model/food_item.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/domain/repo/food_repo.dart';
@@ -56,10 +57,16 @@ class FoodLogCubit extends Cubit<FoodLogState> {
   
   FoodLogCubit(this._repository) : super(FoodLogState());
 
-  Future<dynamic> addMealFromImage(File image) async {
+  Future<Either<String, FoodItem>> detectFoodFromImage(File image) async {
+    // Only detect, do not add to meals list or storage!
+    return await _repository.detectFoodFromImage(image);
+  }
+
+  // New method to add meal from confirmed data
+  Future<void> addMealFromConfirmedData(FoodItem foodItem) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
 
-    final result = await _repository.detectFoodFromImage(image);
+    final result = await _repository.addMeal(foodItem);
 
     result.fold(
       (failure) {
@@ -71,9 +78,9 @@ class FoodLogCubit extends Cubit<FoodLogState> {
           ),
         );
       },
-      (meal) async {
+      (_) async {
         // Update the local state with the new meal
-        final updatedMeals = List<FoodItem>.from(state.meals)..add(meal);
+        final updatedMeals = List<FoodItem>.from(state.meals)..add(foodItem);
         final totals = _calculateTotals(updatedMeals);
         
         emit(
@@ -84,7 +91,7 @@ class FoodLogCubit extends Cubit<FoodLogState> {
             totalCarbs: totals['carbs']!,
             totalFat: totals['fat']!,
             error: null,
-            successMessage: 'Food "${meal.name}" detected successfully and added to the log.',
+            successMessage: 'Food "${foodItem.name}" added successfully to the log.',
             isLoading: false,
           ),
         );
@@ -93,8 +100,6 @@ class FoodLogCubit extends Cubit<FoodLogState> {
         await loadWeeklyData();
       },
     );
-    
-    return result;
   }
 
   Future<void> loadTodaysMeals() async {
