@@ -54,8 +54,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
     );
 
     try {
-      // Call your API to detect food from image
-      final result = await context.read<FoodLogCubit>().addMealFromImage(_image!);
+      final result = await context.read<FoodLogCubit>().detectFoodFromImage(_image!);
       
       // Close loading dialog
       Navigator.pop(context);

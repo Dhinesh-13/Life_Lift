@@ -15,6 +15,7 @@ abstract class FoodRepository {
   Future<Either<String, void>> deleteMeal(String mealId);
   Future<Either<String, void>> updateMeal(FoodItem meal);
   Future<Either<String, List<double>>> getWeeklyCalorieData();
+  Future<Either<String, void>> addMeal(FoodItem foodItem);
 }
 
 // data/repository/food_repository_impl.dart
@@ -35,7 +36,7 @@ class FoodRepositoryImpl implements FoodRepository {
         (error) => Left(error),
         (foodItem) async {
           // Save the detected meal automatically
-          await _saveMealToStorage(foodItem);
+          // await _saveMealToStorage(foodItem);
           return Right(foodItem);
         },
       );
@@ -157,6 +158,16 @@ class FoodRepositoryImpl implements FoodRepository {
       return Right(weeklyData);
     } catch (e) {
       return Left('Failed to load weekly data: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Either<String, void>> addMeal(FoodItem foodItem) async {
+    try {
+      await _saveMealToStorage(foodItem);
+      return Right(null);
+    } catch (e) {
+      return Left('Failed to add meal: ${e.toString()}');
     }
   }
 
