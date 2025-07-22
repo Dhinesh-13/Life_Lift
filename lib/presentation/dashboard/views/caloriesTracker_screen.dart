@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lift_life/data/model/food_item.dart';
 import 'package:lift_life/presentation/dashboard/cubit/food_log_cubit.dart';
-import 'package:lift_life/presentation/dashboard/widgets/food_conformation_screen.dart';
+import 'package:lift_life/presentation/dashboard/widgets/FoodConfirmationScreen.dart';
 import 'package:lift_life/presentation/dashboard/widgets/multiple_food_confirmation_screen.dart';
 
 class CaloriesTrackerScreen extends StatefulWidget {
@@ -21,7 +21,6 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
   @override
   void initState() {
     super.initState();
-    // Load meals by time instead of just today's meals
     context.read<FoodLogCubit>().loadAllMealsByTime();
   }
 
@@ -37,53 +36,8 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
   }
 
   Future<void> scanImage() async {
-    // final mockData = [
-    //   {
-    //     "id": "1",
-    //     "name": "Chicken Breast",
-    //     "calories": 165,
-    //     "protein": 31,
-    //     "carbs": 0,
-    //     "fat": 4,
-    //     "quantity": 100,
-    //     "timestamp": DateTime.now().toIso8601String(),
-    //   },
-    //   {
-    //     "id": "2",
-    //     "name": "Broccoli",
-    //     "calories": 34,
-    //     "protein": 3,
-    //     "carbs": 7,
-    //     "fat": 0,
-    //     "quantity": 100,
-    //     "timestamp": DateTime.now().toIso8601String(),
-    //   },
-    //   {
-    //     "id": "3",
-    //     "name": "Strawberries",
-    //     "calories": 32,
-    //     "protein": 1,
-    //     "carbs": 8,
-    //     "fat": 0,
-    //     "quantity": 100,
-    //     "timestamp": DateTime.now().toIso8601String(),
-    //   },
-    //   {
-    //     "id": "4",
-    //     "name": "Brown Rice",
-    //     "calories": 111,
-    //     "protein": 2,
-    //     "carbs": 24,
-    //     "fat": 1,
-    //     "quantity": 100,
-    //     "timestamp": DateTime.now().toIso8601String(),
-    //   },
-    // ];
-
-    // // Convert to List<FoodItem>
-    // final mockFoods = mockData.map((json) => FoodItem.fromJson(json)).toList();
-
     if (_image == null) return;
+    
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -97,89 +51,58 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
         ),
       ),
     );
+
     try {
       final result = await context
           .read<FoodLogCubit>()
           .detectMultipleFoodsFromImage(_image!);
       Navigator.pop(context);
+      
       if (mounted) {
-        result.fold((error) => _showErrorSnackbar(error), (detectedFoods) {
-          detectedFoods.forEach((food) {
-            print(
-              'Detected food: ${food.name}, '
-              'Calories: ${food.calories}, '
-              'Protein: ${food.protein}, '
-              'Carbs: ${food.carbs}, '
-              'Fat: ${food.fat}',
-            );
-          });
-          if (detectedFoods == null || detectedFoods.isEmpty) {
-            _showErrorSnackbar('No food detected in the image');
-          } else if (detectedFoods.length == 1) {
-            final firstFood = detectedFoods.first;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => FoodConfirmationScreen(
-                  imageFile: _image!,
-                  detectedFoodName: firstFood.name,
-                  baseCalories: firstFood.calories,
-                  baseProtein: firstFood.protein,
-                  baseCarbs: firstFood.carbs,
-                  baseFat: firstFood.fat,
+        result.fold(
+          (error) => _showErrorSnackbar(error),
+          (detectedFoods) {
+            if (detectedFoods.isEmpty) {
+              _showErrorSnackbar('No food detected in the image');
+            } else if (detectedFoods.length == 1) {
+              final firstFood = detectedFoods.first;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FoodConfirmationScreen(
+                    imageFile: _image!,
+                    detectedFoodName: firstFood.name,
+                    baseCalories: firstFood.calories,
+                    baseProtein: firstFood.protein,
+                    baseCarbs: firstFood.carbs,
+                    baseFat: firstFood.fat,
+                  ),
                 ),
-              ),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MultipleFoodConfirmationScreen(
-                  imageFile: _image!,
-                  detectedFoods: detectedFoods,
+              ).then((_) {
+                // Refresh data when coming back from confirmation screen
+                context.read<FoodLogCubit>().loadAllMealsByTime();
+              });
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MultipleFoodConfirmationScreen(
+                    imageFile: _image!,
+                    detectedFoods: detectedFoods,
+                  ),
                 ),
-              ),
-            );
-          }
-        });
+              ).then((_) {
+                // Refresh data when coming back from confirmation screen
+                context.read<FoodLogCubit>().loadAllMealsByTime();
+              });
+            }
+          },
+        );
       }
     } catch (e) {
       Navigator.pop(context);
       _showErrorSnackbar('Failed to analyze image: $e');
     }
-    // if (mounted) {
-    //   if (mockFoods.isEmpty) {
-    //     _showErrorSnackbar('No food detected in the image');
-    //   } else if (mockFoods.length == 1) {
-    //     final firstFood = mockFoods.first;
-    //     Navigator.push(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (context) => FoodConfirmationScreen(
-    //           imageFile: _image!,
-    //           detectedFoodName: firstFood.name,
-    //           baseCalories: firstFood.calories,
-    //           baseProtein: firstFood.protein,
-    //           baseCarbs: firstFood.carbs,
-    //           baseFat: firstFood.fat,
-    //         ),
-    //       ),
-    //     );
-    //   } else {
-    //     Navigator.push(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (context) => MultipleFoodConfirmationScreen(
-    //           imageFile: _image!,
-    //           detectedFoods: mockFoods,
-    //         ),
-    //       ),
-    //     );
-    //   }
-    // }
-
-    // COMMENTED CODE FOR SERVER INTEGRATION
-    // ... [your commented code remains the same]
   }
 
   void _showErrorSnackbar(String message) {
@@ -192,49 +115,12 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
     );
   }
 
-  // Updated method to handle meal time tap (optional - for view only)
-  void _onMealTimeTap(String mealTitle, List<FoodItem> meals) {
-    if (meals.length == 1) {
-      // Single food - show single food screen
-      final food = meals.first;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => FoodConfirmationScreen(
-            imageFile: null, // No image for existing meal
-            detectedFoodName: food.name,
-            baseCalories: food.calories,
-            baseProtein: food.protein,
-            baseCarbs: food.carbs,
-            baseFat: food.fat,
-          ),
-        ),
-      );
-    } else {
-      // Multiple foods - show multiple foods screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MultipleFoodConfirmationScreen(
-            imageFile: null, // No image for existing meal
-            detectedFoods: meals,
-            isEditMode: true, // Add this parameter if you want edit mode
-            existingMealTitle: mealTitle, // Pass meal title for editing
-          ),
-        ),
-      );
-    }
-  }
-
-  // Delete confirmation dialog for entire meal time
-  void _showDeleteMealTimeDialog(String mealTitle) {
+  void _showDeleteDialog(BuildContext context, FoodItem meal, String mealTitle) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Delete Meal Time'),
-        content: Text(
-          'Are you sure you want to delete all items from "$mealTitle"?',
-        ),
+        title: Text('Delete Meal'),
+        content: Text('Are you sure you want to delete "${meal.name}" from $mealTitle?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -242,71 +128,18 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              context.read<FoodLogCubit>().deleteMealFromMealTime(meal.id, mealTitle);
               Navigator.pop(context);
-              _deleteMealTime(mealTitle);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Meal deleted successfully'),
+                  backgroundColor: Colors.green,
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Delete All', style: TextStyle(color: Colors.white)),
+            child: Text('Delete'),
           ),
-        ],
-      ),
-    );
-  }
-
-  // Delete entire meal time
-  void _deleteMealTime(String mealTitle) {
-    context.read<FoodLogCubit>().clearMealTime(mealTitle);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('All items from "$mealTitle" deleted successfully'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  // Show options for meal time (View, Edit, Delete)
-  void _showMealTimeOptions(String mealTitle, List<FoodItem> meals) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Wrap(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              mealTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-          // ListTile(
-          //   leading: Icon(Icons.visibility, color: Colors.blue),
-          //   title: Text('View Details'),
-          //   subtitle: Text('${meals.length} items'),
-          //   onTap: () {
-          //     Navigator.pop(context);
-          //     _onMealTimeTap(mealTitle, meals);
-          //   },
-          // ),
-          ListTile(
-            leading: Icon(Icons.edit, color: Colors.orange),
-            title: Text('Edit Meal'),
-            subtitle: Text('Modify items and quantities'),
-            onTap: () {
-              Navigator.pop(context);
-              _onMealTimeTap(mealTitle, meals);
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.delete, color: Colors.red),
-            title: Text('Delete All Items'),
-            subtitle: Text('Remove all items from this meal'),
-            onTap: () {
-              Navigator.pop(context);
-              _showDeleteMealTimeDialog(mealTitle);
-            },
-          ),
-          SizedBox(height: 20),
         ],
       ),
     );
@@ -346,6 +179,28 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
     );
   }
 
+  // Calculate totals for a specific meal time
+  Map<String, double> _calculateMealTimeTotals(List<FoodItem> meals) {
+    double totalCalories = 0.0;
+    double totalProtein = 0.0;
+    double totalCarbs = 0.0;
+    double totalFat = 0.0;
+
+    for (final meal in meals) {
+      totalCalories += meal.calories;
+      totalProtein += meal.protein;
+      totalCarbs += meal.carbs;
+      totalFat += meal.fat;
+    }
+
+    return {
+      'calories': totalCalories,
+      'protein': totalProtein,
+      'carbs': totalCarbs,
+      'fat': totalFat,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -362,325 +217,293 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Today's trackers",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                SizedBox(height: 16),
-                BlocBuilder<FoodLogCubit, FoodLogState>(
-                  builder: (context, state) {
-                    if (state.isLoading) {
-                      return Center(child: CircularProgressIndicator());
-                    }
+        child: BlocBuilder<FoodLogCubit, FoodLogState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Nutrition Summary Card
-                        Card(
-                          elevation: 4,
-                          child: Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Daily Summary',
-                                  style: Theme.of(context).textTheme.titleLarge,
+            return Column(
+              children: [
+                // Header and Summary - Fixed at top
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Today's trackers",
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      SizedBox(height: 16),
+                      
+                      // Nutrition Summary Card
+                      Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Daily Summary',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildNutritionItem(
+                                    'Calories',
+                                    '${state.totalCalories.toStringAsFixed(0)}',
+                                    Colors.orange,
+                                  ),
+                                  _buildNutritionItem(
+                                    'Protein',
+                                    '${state.totalProtein.toStringAsFixed(1)}g',
+                                    Colors.red,
+                                  ),
+                                  _buildNutritionItem(
+                                    'Carbs',
+                                    '${state.totalCarbs.toStringAsFixed(1)}g',
+                                    Colors.blue,
+                                  ),
+                                  _buildNutritionItem(
+                                    'Fat',
+                                    '${state.totalFat.toStringAsFixed(1)}g',
+                                    Colors.green,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      
+                      Text(
+                        'Meals by Time (${state.mealsByTime.length})',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Meals List - Expandable
+                Expanded(
+                  child: state.mealsByTime.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.restaurant,
+                                size: 64,
+                                color: Colors.grey[400],
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'No meals saved yet',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(color: Colors.grey[600]),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Tap the camera button to add your first meal',
+                                style: TextStyle(
+                                  color: Colors.grey[500],
                                 ),
-                                SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: state.mealsByTime.entries.length,
+                          itemBuilder: (context, index) {
+                            final entry = state.mealsByTime.entries.elementAt(index);
+                            final mealTitle = entry.key;
+                            final meals = entry.value;
+                            
+                            // Calculate totals for this meal time
+                            final mealTimeTotals = _calculateMealTimeTotals(meals);
+
+                            return Card(
+                              margin: EdgeInsets.only(bottom: 12),
+                              child: ExpansionTile(
+                                title: Row(
                                   children: [
-                                    _buildNutritionItem(
-                                      'Calories',
-                                      '${state.totalCalories.toStringAsFixed(0)}',
-                                      Colors.orange,
+                                    CircleAvatar(
+                                      backgroundColor: _getMealTimeColor(mealTitle),
+                                      child: Icon(
+                                        _getMealTimeIcon(mealTitle),
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
                                     ),
-                                    _buildNutritionItem(
-                                      'Protein',
-                                      '${state.totalProtein.toStringAsFixed(1)}g',
-                                      Colors.red,
-                                    ),
-                                    _buildNutritionItem(
-                                      'Carbs',
-                                      '${state.totalCarbs.toStringAsFixed(1)}g',
-                                      Colors.blue,
-                                    ),
-                                    _buildNutritionItem(
-                                      'Fat',
-                                      '${state.totalFat.toStringAsFixed(1)}g',
-                                      Colors.green,
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            mealTitle,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${meals.length} items • ${mealTimeTotals['calories']!.toStringAsFixed(0)} cal',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 24),
-
-                        // Display meals by time instead of individual meals
-                        Text(
-                          'Meals by Time (${state.mealsByTime.length})',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        SizedBox(height: 16),
-
-                        if (state.error != null)
-                          Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.all(12),
-                            margin: EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.shade300),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.error, color: Colors.red.shade700),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    state.error!,
-                                    style: TextStyle(
-                                      color: Colors.red.shade700,
+                                // Add meal time summary before individual items
+                                children: [
+                                  // Meal Time Total Summary
+                                  Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    padding: EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: _getMealTimeColor(mealTitle).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: _getMealTimeColor(mealTitle).withOpacity(0.3),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.close,
-                                    color: Colors.red.shade700,
-                                  ),
-                                  onPressed: () {
-                                    context.read<FoodLogCubit>().clearError();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-
-                        if (state.mealsByTime.isEmpty)
-                          Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.all(32),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.restaurant,
-                                  size: 64,
-                                  color: Colors.grey.shade400,
-                                ),
-                                SizedBox(height: 16),
-                                Text(
-                                  'No meals logged today',
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(color: Colors.grey.shade600),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Tap the camera button to add your first meal',
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(color: Colors.grey.shade500),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          // Display meals grouped by time
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: state.mealsByTime.entries.length,
-                            itemBuilder: (context, index) {
-                              final entry = state.mealsByTime.entries.elementAt(
-                                index,
-                              );
-                              final mealTitle =
-                                  entry.key; // Breakfast, Lunch, Dinner
-                              final meals = entry.value; // List<FoodItem>
-
-                              // Calculate totals for this meal time
-                              final totalCalories = meals.fold(
-                                0.0,
-                                (sum, meal) => sum + meal.calories,
-                              );
-                              final totalProtein = meals.fold(
-                                0.0,
-                                (sum, meal) => sum + meal.protein,
-                              );
-                              final totalCarbs = meals.fold(
-                                0.0,
-                                (sum, meal) => sum + meal.carbs,
-                              );
-                              final totalFat = meals.fold(
-                                0.0,
-                                (sum, meal) => sum + meal.fat,
-                              );
-
-                              return Card(
-                                margin: EdgeInsets.only(bottom: 12),
-                                child: InkWell(
-                                  onTap: () =>
-                                      _showMealTimeOptions(mealTitle, meals),
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
+                                        Text(
+                                          '$mealTitle Total',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            color: _getMealTimeColor(mealTitle),
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
                                         Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                                           children: [
-                                            CircleAvatar(
-                                              backgroundColor:
-                                                  _getMealTimeColor(mealTitle),
-                                              child: Icon(
-                                                _getMealTimeIcon(mealTitle),
-                                                color: Colors.white,
-                                              ),
+                                            _buildSmallNutritionItem(
+                                              'Cal',
+                                              mealTimeTotals['calories']!.toStringAsFixed(0),
+                                              Colors.orange,
                                             ),
-                                            SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    mealTitle,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 18,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    '${meals.length} items',
-                                                    style: TextStyle(
-                                                      color:
-                                                          Colors.grey.shade600,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                            _buildSmallNutritionItem(
+                                              'Protein',
+                                              '${mealTimeTotals['protein']!.toStringAsFixed(1)}g',
+                                              Colors.red,
                                             ),
-                                            // Replace arrow with delete button
-                                            PopupMenuButton<String>(
-                                              onSelected: (value) {
-                                                if (value == 'view') {
-                                                  _onMealTimeTap(
-                                                    mealTitle,
-                                                    meals,
-                                                  );
-                                                } else if (value == 'delete') {
-                                                  _showDeleteMealTimeDialog(
-                                                    mealTitle,
-                                                  );
-                                                }
-                                              },
-                                              itemBuilder: (context) => [
-                                                PopupMenuItem(
-                                                  value: 'view',
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.visibility,
-                                                        color: Colors.blue,
-                                                      ),
-                                                      SizedBox(width: 8),
-                                                      Text('View/Edit'),
-                                                    ],
-                                                  ),
-                                                ),
-                                                PopupMenuItem(
-                                                  value: 'delete',
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.delete,
-                                                        color: Colors.red,
-                                                      ),
-                                                      SizedBox(width: 8),
-                                                      Text('Delete All'),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                              child: Container(
-                                                padding: EdgeInsets.all(4),
-                                                child: Icon(
-                                                  Icons.more_vert,
-                                                  color: Colors.grey.shade600,
-                                                ),
-                                              ),
+                                            _buildSmallNutritionItem(
+                                              'Carbs',
+                                              '${mealTimeTotals['carbs']!.toStringAsFixed(1)}g',
+                                              Colors.blue,
+                                            ),
+                                            _buildSmallNutritionItem(
+                                              'Fat',
+                                              '${mealTimeTotals['fat']!.toStringAsFixed(1)}g',
+                                              Colors.green,
                                             ),
                                           ],
-                                        ),
-                                        SizedBox(height: 12),
-                                        // Total nutrition for this meal time
-                                        Container(
-                                          padding: EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade50,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              _buildSmallNutritionItem(
-                                                'Cal',
-                                                totalCalories.toStringAsFixed(
-                                                  0,
-                                                ),
-                                                Colors.orange,
-                                              ),
-                                              _buildSmallNutritionItem(
-                                                'Protein',
-                                                '${totalProtein.toStringAsFixed(1)}g',
-                                                Colors.red,
-                                              ),
-                                              _buildSmallNutritionItem(
-                                                'Carbs',
-                                                '${totalCarbs.toStringAsFixed(1)}g',
-                                                Colors.blue,
-                                              ),
-                                              _buildSmallNutritionItem(
-                                                'Fat',
-                                                '${totalFat.toStringAsFixed(1)}g',
-                                                Colors.green,
-                                              ),
-                                            ],
-                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                      ],
-                    );
-                  },
+                                  Divider(height: 1),
+                                  // Individual meal items
+                                  ...meals.map(
+                                    (meal) => ListTile(
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 4,
+                                      ),
+                                      leading: CircleAvatar(
+                                        backgroundColor: Colors.orange.shade100,
+                                        radius: 20,
+                                        child: Icon(
+                                          Icons.restaurant,
+                                          color: Colors.orange.shade700,
+                                          size: 16,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        meal.name,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${meal.calories.toStringAsFixed(0)} cal',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.orange[700],
+                                            ),
+                                          ),
+                                          Text(
+                                            'P: ${meal.protein.toStringAsFixed(1)}g • C: ${meal.carbs.toStringAsFixed(1)}g • F: ${meal.fat.toStringAsFixed(1)}g',
+                                            style: TextStyle(fontSize: 11),
+                                          ),
+                                          if (meal.quantity != null && meal.quantity! > 0)
+                                            Text(
+                                              'Weight: ${meal.quantity!.toStringAsFixed(0)}g',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      trailing: PopupMenuButton<String>(
+                                        onSelected: (value) {
+                                          if (value == 'delete') {
+                                            _showDeleteDialog(
+                                              context,
+                                              meal,
+                                              mealTitle,
+                                            );
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem(
+                                            value: 'delete',
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.delete, color: Colors.red),
+                                                SizedBox(width: 8),
+                                                Text('Delete'),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ).toList(),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ],
-            ),
-          ),
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -723,7 +546,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
         Text(
           value,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: color,
           ),
@@ -748,9 +571,13 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
             color: color,
           ),
         ),
+        SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey.shade600,
+          ),
         ),
       ],
     );
