@@ -5,6 +5,8 @@ import 'package:lift_life/presentation/dashboard/cubit/gym_cubit.dart';
 import 'active_workout_screen.dart';
 import 'exercise_selection_screen.dart';
 import 'workout_detail_screen.dart';
+import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 
 class GymScreen extends StatefulWidget {
   const GymScreen({super.key});
@@ -17,13 +19,17 @@ class _GymScreenState extends State<GymScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red[50],
+      backgroundColor: ColorHelper.backgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'Gym Workout',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          TextHelper.gymWorkout,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Roboto',
+          ),
         ),
-        backgroundColor: Colors.red[600],
+        backgroundColor: ColorHelper.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           BlocBuilder<GymCubit, GymState>(
@@ -70,22 +76,22 @@ class _GymScreenState extends State<GymScreen> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade100,
+                        color: ColorHelper.errorColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade300),
+                        border: Border.all(color: ColorHelper.errorColor.withOpacity(0.5)),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.error, color: Colors.red.shade700),
+                          Icon(Icons.error, color: ColorHelper.errorColor),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               state.error!,
-                              style: TextStyle(color: Colors.red.shade700),
+                              style: const TextStyle(color: ColorHelper.errorColor, fontFamily: 'Roboto'),
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.close, color: Colors.red.shade700),
+                            icon: const Icon(Icons.close, color: ColorHelper.errorColor),
                             onPressed: () {
                               context.read<GymCubit>().clearError();
                             },
@@ -107,19 +113,19 @@ class _GymScreenState extends State<GymScreen> {
                     children: [
                       Expanded(
                         child: _buildGymStatCard(
-                          'This Week',
-                          '${state.thisWeekWorkouts} workouts',
+                          TextHelper.thisWeek,
+                          '${state.thisWeekWorkouts} ${TextHelper.exercises}',
                           Icons.calendar_today,
-                          Colors.blue,
+                          ColorHelper.primaryColor,
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildGymStatCard(
-                          'Total Time',
-                          '${_formatDuration(state.totalMinutesThisWeek)}',
+                          TextHelper.totalTime,
+                          _formatDuration(state.totalMinutesThisWeek),
                           Icons.timer,
-                          Colors.green,
+                          ColorHelper.secondaryColor,
                         ),
                       ),
                     ],

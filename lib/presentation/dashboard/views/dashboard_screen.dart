@@ -23,6 +23,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
        body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.black,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -31,8 +33,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         },
         items: [
           BottomNavigationBarItem(
+          
+
             icon: Icon(Icons.home),
             label: 'Home',
+
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.connect_without_contact_sharp),

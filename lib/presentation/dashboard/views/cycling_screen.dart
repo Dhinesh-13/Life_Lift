@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 
 class CyclingScreen extends StatefulWidget {
   const CyclingScreen({super.key});
@@ -16,13 +18,17 @@ class _CyclingScreenState extends State<CyclingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange[50],
+      backgroundColor: ColorHelper.backgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'Cycling',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          TextHelper.cycling,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Roboto',
+          ),
         ),
-        backgroundColor: Colors.orange[600],
+        backgroundColor: ColorHelper.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -40,7 +46,7 @@ class _CyclingScreenState extends State<CyclingScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
-                    colors: [Colors.orange[400]!, Colors.orange[600]!],
+                    colors: [ColorHelper.caloriesColor.withOpacity(0.7), ColorHelper.primaryColor],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -61,11 +67,12 @@ class _CyclingScreenState extends State<CyclingScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    const Text(
-                      'Distance Cycled',
-                      style: TextStyle(
+                    Text(
+                      TextHelper.distanceCycled,
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Colors.white70,
+                        fontFamily: 'Roboto',
                       ),
                     ),
                   ],
