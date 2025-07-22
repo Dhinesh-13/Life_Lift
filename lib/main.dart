@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/domain/repo/food_repo.dart';
 import 'package:lift_life/helper/nav_helper/nav_helper.dart';
 import 'package:lift_life/presentation/dashboard/cubit/food_log_cubit.dart';
+import 'package:lift_life/presentation/dashboard/cubit/gym_cubit.dart';
 import 'package:lift_life/presentation/dashboard/cubit/step_count_cubit.dart';
+// import 'package:lift_life/presentation/dashboard/cubit/step_count_cubit.dart';
 import 'package:lift_life/service/food_services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
@@ -38,15 +40,10 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => FoodLogCubit(
-            FoodRepositoryImpl(
-              FoodService(),
-            ),
-          ),
+          create: (context) => FoodLogCubit(FoodRepositoryImpl(FoodService())),
         ),
-        BlocProvider(
-          create: (context) => StepCountCubit(),
-        ),
+        BlocProvider(create: (context) => StepCountCubit()),
+        BlocProvider(create: (context) => GymCubit()),
       ],
       child: MaterialApp.router(
         title: 'Flutter Demo',

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lift_life/presentation/dashboard/views/cycling_screen.dart';
 import 'package:lift_life/presentation/dashboard/views/gym_screen.dart';
 import 'package:lift_life/presentation/dashboard/views/walking_screen.dart';
-import 'package:lift_life/di/app_di.dart';
+import 'dart:async';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:pedometer/pedometer.dart';
 
 class ActiveScreen extends StatefulWidget {
   const ActiveScreen({super.key});
@@ -18,8 +21,12 @@ class _ActiveScreenState extends State<ActiveScreen> {
       appBar: AppBar(
         title: const Text(
           'Activities',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blue[600],
         elevation: 0,
       ),
       body: Padding(
@@ -30,6 +37,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
             const Text(
               'Choose Your Activity',
               style: TextStyle(
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
@@ -53,9 +61,9 @@ class _ActiveScreenState extends State<ActiveScreen> {
               },
             ),
             
-            // const SizedBox(height: 16),
+            const SizedBox(height: 16),
             
-            // // Cycling Card
+            // Cycling Card
             // _buildActivityCard(
             //   context,
             //   title: 'Cycling',
@@ -77,7 +85,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
             // Gym Card
             _buildActivityCard(
               context,
-              title: 'Workout',
+              title: 'Gym',
               subtitle: 'Log your workout sessions',
               icon: Icons.fitness_center,
               color: Colors.red,
@@ -119,8 +127,8 @@ class _ActiveScreenState extends State<ActiveScreen> {
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               colors: [
-                color.withValues(alpha: (0.5 * 255)),
-                color.withValues(alpha: (0.05 * 255)),
+                color.withOpacity(0.1),
+                color.withOpacity(0.05),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -176,3 +184,10 @@ class _ActiveScreenState extends State<ActiveScreen> {
     );
   }
 }
+
+
+// Cycling Screen
+
+
+// Gym Screen
+

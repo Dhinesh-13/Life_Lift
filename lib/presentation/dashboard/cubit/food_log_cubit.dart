@@ -7,7 +7,8 @@ import 'package:lift_life/domain/repo/food_repo.dart';
 import 'package:lift_life/helper/sharedPreference_helper.dart';
 
 class FoodLogState {
-  final Map<String, List<FoodItem>> mealsByTime; // Changed to support meal times
+  final Map<String, List<FoodItem>>
+  mealsByTime; // Changed to support meal times
   final List<FoodItem> meals; // Keep for backward compatibility
   final double totalCalories;
   final double totalProtein;
@@ -17,6 +18,7 @@ class FoodLogState {
   final bool isLoading;
   final String? error;
   final String? successMessage;
+  final double? dailyCalorieGoal; // New field for daily calorie goal
 
   const FoodLogState({
     this.mealsByTime = const {},
@@ -29,6 +31,7 @@ class FoodLogState {
     this.isLoading = false,
     this.error,
     this.successMessage,
+    this.dailyCalorieGoal,
   });
 
   FoodLogState copyWith({
@@ -42,6 +45,7 @@ class FoodLogState {
     bool? isLoading,
     String? error,
     String? successMessage,
+    double? dailyCalorieGoal, // Add this line
   }) {
     return FoodLogState(
       mealsByTime: mealsByTime ?? this.mealsByTime,
@@ -54,13 +58,15 @@ class FoodLogState {
       isLoading: isLoading ?? this.isLoading,
       error: error,
       successMessage: successMessage,
+      dailyCalorieGoal:
+          dailyCalorieGoal ?? this.dailyCalorieGoal, // Add this line
     );
   }
 }
 
 class FoodLogCubit extends Cubit<FoodLogState> {
   final FoodRepository _repository;
-  
+
   FoodLogCubit(this._repository) : super(FoodLogState());
 
   Future<Either<String, FoodItem>> detectFoodFromImage(File image) async {
@@ -68,7 +74,9 @@ class FoodLogCubit extends Cubit<FoodLogState> {
     return await _repository.detectFoodFromImage(image);
   }
 
-  Future<Either<String, List<FoodItem>>> detectMultipleFoodsFromImage(File image) async {
+  Future<Either<String, List<FoodItem>>> detectMultipleFoodsFromImage(
+    File image,
+  ) async {
     return await _repository.detectMultipleFoodsFromImage(image);
   }
 
@@ -91,10 +99,14 @@ class FoodLogCubit extends Cubit<FoodLogState> {
       },
       (_) async {
         // Update the local state with the new meal
-        final updatedMealsByTime = Map<String, List<FoodItem>>.from(state.mealsByTime);
-        
+        final updatedMealsByTime = Map<String, List<FoodItem>>.from(
+          state.mealsByTime,
+        );
+
         if (updatedMealsByTime.containsKey(mealTime)) {
-          updatedMealsByTime[mealTime] = List<FoodItem>.from(updatedMealsByTime[mealTime]!)..add(foodItem);
+          updatedMealsByTime[mealTime] = List<FoodItem>.from(
+            updatedMealsByTime[mealTime]!,
+          )..add(foodItem);
         } else {
           updatedMealsByTime[mealTime] = [foodItem];
         }
@@ -102,7 +114,7 @@ class FoodLogCubit extends Cubit<FoodLogState> {
         // Update total meals list
         final allMeals = _getAllMealsFromMealsByTime(updatedMealsByTime);
         final totals = _calculateTotals(allMeals);
-        
+
         emit(
           state.copyWith(
             mealsByTime: updatedMealsByTime,
@@ -112,11 +124,12 @@ class FoodLogCubit extends Cubit<FoodLogState> {
             totalCarbs: totals['carbs']!,
             totalFat: totals['fat']!,
             error: null,
-            successMessage: 'Food "${foodItem.name}" added successfully to $mealTime.',
+            successMessage:
+                'Food "${foodItem.name}" added successfully to $mealTime.',
             isLoading: false,
           ),
         );
-        
+
         // Load weekly data after adding meal
         await loadWeeklyData();
       },
@@ -125,25 +138,22 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> loadMealsByMealTime(String mealTime) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.getMealsByMealTime(mealTime);
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (meals) {
-        final updatedMealsByTime = Map<String, List<FoodItem>>.from(state.mealsByTime);
+        final updatedMealsByTime = Map<String, List<FoodItem>>.from(
+          state.mealsByTime,
+        );
         updatedMealsByTime[mealTime] = meals;
-        
+
         final allMeals = _getAllMealsFromMealsByTime(updatedMealsByTime);
         final totals = _calculateTotals(allMeals);
-        
+
         emit(
           state.copyWith(
             mealsByTime: updatedMealsByTime,
@@ -162,22 +172,17 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> loadAllMealsByTime() async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.getAllMealsByTime();
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (mealsByTime) {
         final allMeals = _getAllMealsFromMealsByTime(mealsByTime);
         final totals = _calculateTotals(allMeals);
-        
+
         emit(
           state.copyWith(
             mealsByTime: mealsByTime,
@@ -196,35 +201,32 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> deleteMealFromMealTime(String mealId, String mealTime) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.deleteMealFromMealTime(mealId, mealTime);
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (_) {
         // Update local state by removing the meal from specific meal time
-        final updatedMealsByTime = Map<String, List<FoodItem>>.from(state.mealsByTime);
-        
+        final updatedMealsByTime = Map<String, List<FoodItem>>.from(
+          state.mealsByTime,
+        );
+
         if (updatedMealsByTime.containsKey(mealTime)) {
           updatedMealsByTime[mealTime] = updatedMealsByTime[mealTime]!
               .where((meal) => meal.id != mealId)
               .toList();
-              
+
           if (updatedMealsByTime[mealTime]!.isEmpty) {
             updatedMealsByTime.remove(mealTime);
           }
         }
-        
+
         final allMeals = _getAllMealsFromMealsByTime(updatedMealsByTime);
         final totals = _calculateTotals(allMeals);
-        
+
         emit(
           state.copyWith(
             mealsByTime: updatedMealsByTime,
@@ -243,31 +245,28 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> updateMealInMealTime(FoodItem meal, String mealTime) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.updateMealInMealTime(meal, mealTime);
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (_) {
         // Update local state
-        final updatedMealsByTime = Map<String, List<FoodItem>>.from(state.mealsByTime);
-        
+        final updatedMealsByTime = Map<String, List<FoodItem>>.from(
+          state.mealsByTime,
+        );
+
         if (updatedMealsByTime.containsKey(mealTime)) {
           updatedMealsByTime[mealTime] = updatedMealsByTime[mealTime]!
               .map((m) => m.id == meal.id ? meal : m)
               .toList();
         }
-        
+
         final allMeals = _getAllMealsFromMealsByTime(updatedMealsByTime);
         final totals = _calculateTotals(allMeals);
-        
+
         emit(
           state.copyWith(
             mealsByTime: updatedMealsByTime,
@@ -286,25 +285,22 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> clearMealTime(String mealTime) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.clearMealTime(mealTime);
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (_) {
-        final updatedMealsByTime = Map<String, List<FoodItem>>.from(state.mealsByTime);
+        final updatedMealsByTime = Map<String, List<FoodItem>>.from(
+          state.mealsByTime,
+        );
         updatedMealsByTime.remove(mealTime);
-        
+
         final allMeals = _getAllMealsFromMealsByTime(updatedMealsByTime);
         final totals = _calculateTotals(allMeals);
-        
+
         emit(
           state.copyWith(
             mealsByTime: updatedMealsByTime,
@@ -323,17 +319,12 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> clearAllMealTimes() async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.clearAllMealTimes();
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (_) {
         emit(
@@ -373,7 +364,7 @@ class FoodLogCubit extends Cubit<FoodLogState> {
         // Update the local state with the new meal
         final updatedMeals = List<FoodItem>.from(state.meals)..add(foodItem);
         final totals = _calculateTotals(updatedMeals);
-        
+
         emit(
           state.copyWith(
             meals: updatedMeals,
@@ -382,11 +373,12 @@ class FoodLogCubit extends Cubit<FoodLogState> {
             totalCarbs: totals['carbs']!,
             totalFat: totals['fat']!,
             error: null,
-            successMessage: 'Food "${foodItem.name}" added successfully to the log.',
+            successMessage:
+                'Food "${foodItem.name}" added successfully to the log.',
             isLoading: false,
           ),
         );
-        
+
         // Load weekly data after adding meal
         await loadWeeklyData();
       },
@@ -410,19 +402,18 @@ class FoodLogCubit extends Cubit<FoodLogState> {
     return maintenanceCalories;
   }
 
-  Future<void> loadTodaysMeals() async {
+  // Add this to your existing FoodLogCubit class
+  Future<void> loadTodaysMealsWithGoal() async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
+    // Get daily calorie goal
+    final dailyGoal = await setGoalForCalories();
+
     final result = await _repository.getTodaysMeals();
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (meals) {
         final totals = _calculateTotals(meals);
@@ -433,6 +424,7 @@ class FoodLogCubit extends Cubit<FoodLogState> {
             totalProtein: totals['protein']!,
             totalCarbs: totals['carbs']!,
             totalFat: totals['fat']!,
+            dailyCalorieGoal: dailyGoal.toDouble(), // Add this to state
             isLoading: false,
             error: null,
           ),
@@ -443,23 +435,20 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> deleteMeal(String mealId) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.deleteMeal(mealId);
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (_) {
         // Update local state by removing the meal
-        final updatedMeals = state.meals.where((meal) => meal.id != mealId).toList();
+        final updatedMeals = state.meals
+            .where((meal) => meal.id != mealId)
+            .toList();
         final totals = _calculateTotals(updatedMeals);
-        
+
         emit(
           state.copyWith(
             meals: updatedMeals,
@@ -477,23 +466,20 @@ class FoodLogCubit extends Cubit<FoodLogState> {
 
   Future<void> updateMeal(FoodItem meal) async {
     emit(state.copyWith(isLoading: true, error: null, successMessage: null));
-    
+
     final result = await _repository.updateMeal(meal);
-    
+
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            error: failure,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(error: failure, isLoading: false));
       },
       (_) {
         // Update local state
-        final updatedMeals = state.meals.map((m) => m.id == meal.id ? meal : m).toList();
+        final updatedMeals = state.meals
+            .map((m) => m.id == meal.id ? meal : m)
+            .toList();
         final totals = _calculateTotals(updatedMeals);
-        
+
         emit(
           state.copyWith(
             meals: updatedMeals,
@@ -509,9 +495,43 @@ class FoodLogCubit extends Cubit<FoodLogState> {
     );
   }
 
+  // Add this method to your FoodLogCubit class
+  Future<void> loadAllMealsByTimeWithGoal() async {
+    emit(state.copyWith(isLoading: true, error: null, successMessage: null));
+
+    // Get daily calorie goal
+    final dailyGoal = await setGoalForCalories();
+
+    final result = await _repository.getAllMealsByTime();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(error: failure, isLoading: false));
+      },
+      (mealsByTime) {
+        final allMeals = _getAllMealsFromMealsByTime(mealsByTime);
+        final totals = _calculateTotals(allMeals);
+
+        emit(
+          state.copyWith(
+            mealsByTime: mealsByTime,
+            meals: allMeals,
+            totalCalories: totals['calories']!,
+            totalProtein: totals['protein']!,
+            totalCarbs: totals['carbs']!,
+            totalFat: totals['fat']!,
+            dailyCalorieGoal: dailyGoal.toDouble(),
+            isLoading: false,
+            error: null,
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> loadWeeklyData() async {
     final result = await _repository.getWeeklyCalorieData();
-    
+
     result.fold(
       (failure) {
         print('Failed to load weekly data: $failure');
@@ -543,7 +563,9 @@ class FoodLogCubit extends Cubit<FoodLogState> {
   }
 
   // Helper method to flatten mealsByTime to a single list
-  List<FoodItem> _getAllMealsFromMealsByTime(Map<String, List<FoodItem>> mealsByTime) {
+  List<FoodItem> _getAllMealsFromMealsByTime(
+    Map<String, List<FoodItem>> mealsByTime,
+  ) {
     final List<FoodItem> allMeals = [];
     mealsByTime.values.forEach((mealList) {
       allMeals.addAll(mealList);
