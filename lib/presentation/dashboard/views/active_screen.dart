@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lift_life/presentation/dashboard/views/gym_screen.dart';
 import 'package:lift_life/presentation/dashboard/views/walking_screen.dart';
+import 'package:lift_life/di/app_di.dart';
 
 class ActiveScreen extends StatefulWidget {
   const ActiveScreen({super.key});

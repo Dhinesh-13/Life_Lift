@@ -38,9 +38,15 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => FoodLogCubit(FoodRepositoryImpl(FoodService())),
+          create: (context) => FoodLogCubit(
+            FoodRepositoryImpl(
+              FoodService(),
+            ),
+          ),
         ),
-        BlocProvider(create: (context) => StepCountCubit()),
+        BlocProvider(
+          create: (context) => StepCountCubit(),
+        ),
       ],
       child: MaterialApp.router(
         title: 'Flutter Demo',

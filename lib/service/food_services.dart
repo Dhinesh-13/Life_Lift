@@ -28,7 +28,7 @@ class FoodService {
     }
   }
 
-  Future<Either<String, FoodItem>> detectFoodAndCalories(File imageFile) async {
+  Future<Either<String, List<FoodItem>>> detectMultipleFoodsFromImage(File imageFile) async {
     try {
       if (!imageFile.existsSync()) {
         return Left('File not found: ${imageFile.path}');
@@ -41,10 +41,11 @@ class FoodService {
         try {
           final response = await Gemini.instance.textAndImage(
             text:
-                'You must return ONLY the following JSON format and nothing else: '
-                '{"name": "", "calories": 0, "protein": 0, "carbs": 0, "fat": 0}. '
-                'Do NOT include any explanation, description, code block, markdown, or formatting. '
-                'Output exactly one raw JSON object. Analyze the food in the image and provide nutritional information for exactly 100 grams of it. ',
+                'You must return ONLY the following JSON format and nothing else: {"foods": [{"name": '
+                '"", "calories": 0, "protein": 0, "carbs": 0, "fat": 0}]}. Do NOT include any  '
+                'explanation, description, code block, markdown, or formatting. Output exactly one '
+                'raw JSON object. Analyse all food in the image and provide nutritional information '
+                ' for exactly 100 grams of each food item. Include all detected foods in the "foods" array within a single JSON response.',
             images: [imageFile.readAsBytesSync()],
           );
 
@@ -53,7 +54,7 @@ class FoodService {
             return Left('No response output from Gemini API');
           }
 
-          print('Raw Gemini response: $output');
+          // print('Raw Gemini response: $output');
 
           // Extract JSON from the response
           final match = RegExp(r'\{.*\}').firstMatch(output);
@@ -65,24 +66,22 @@ class FoodService {
           print('Extracted JSON: $jsonString');
 
           final foodData = jsonDecode(jsonString);
-
-          // Validate required fields
-          if (foodData['name'] == null || foodData['name'].toString().isEmpty) {
-            return Left('Food name not detected');
+          final foods = foodData['foods'];
+          if (foods == null || foods is! List || foods.isEmpty) {
+            return Left('No foods detected');
           }
+          final detectedFoods = foods.map<FoodItem>((food) => FoodItem(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            name: food['name'].toString(),
+            calories: (food['calories'] ?? 0).toDouble(),
+            protein: (food['protein'] ?? 0).toDouble(),
+            carbs: (food['carbs'] ?? 0).toDouble(),
+            fat: (food['fat'] ?? 0).toDouble(),
+            quantity: 100.0,
+            timestamp: DateTime.now(),
+          )).toList();
 
-          return Right(
-            FoodItem(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              name: foodData['name'].toString(),
-              calories: (foodData['calories'] ?? 0).toDouble(),
-              protein: (foodData['protein'] ?? 0).toDouble(),
-              carbs: (foodData['carbs'] ?? 0).toDouble(),
-              fat: (foodData['fat'] ?? 0).toDouble(),
-              quantity: 100.0, // Default serving size
-              timestamp: DateTime.now(),
-            ),
-          );
+          return Right(detectedFoods);
         } catch (e) {
           print('Attempt $attempt failed: $e');
 
@@ -102,16 +101,16 @@ class FoodService {
             }
           } else {
             // Non-503 error, don't retry
-            return Left('Failed to detect food: ${e.toString()}');
+            return Left('Server is currently busy. Please try again in a few minutes. The AI service is experiencing high traffic.');
           }
         }
       }
 
       // This should not be reached, but just in case
-      return Left('Failed to detect food after $maxRetries attempts');
+      return Left('Server is currently busy. Please try again in a few minutes. The AI service is experiencing high traffic.');
     } catch (e) {
       print('Error in detectFoodAndCalories: $e');
-      return Left('Failed to detect food: ${e.toString()}');
+      return Left('Server is currently busy. Please try again in a few minutes. The AI service is experiencing high traffic.');
     }
   }
 }

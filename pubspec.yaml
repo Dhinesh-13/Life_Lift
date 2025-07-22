@@ -46,6 +46,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   pedometer: ^4.0.2
   permission_handler: ^11.0.1
+  get_it: ^7.6.0
   
 dev_dependencies:
 
