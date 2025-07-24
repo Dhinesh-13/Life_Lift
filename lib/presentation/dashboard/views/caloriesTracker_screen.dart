@@ -210,10 +210,7 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-       
-        backgroundColor: Colors.grey[50],
         title: Container(
           padding: EdgeInsets.only(top: 30.0, left: 10.0, bottom: 10.0),
           child: Text(

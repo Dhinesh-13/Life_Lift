@@ -12,12 +12,14 @@ class ActiveWorkoutScreen extends StatefulWidget {
 }
 
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
+  final Color baseBlue = Colors.blue[100]!;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GymCubit, GymState>(
       builder: (context, state) {
         final workout = state.currentWorkout;
-        
+
         if (workout == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Workout')),
@@ -28,10 +30,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         }
 
         return Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
             title: Text(workout.name),
-            backgroundColor: Colors.green[600],
-            foregroundColor: Colors.white,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
             actions: [
               PopupMenuButton<String>(
                 onSelected: (value) {
@@ -42,20 +45,20 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'finish',
                     child: Row(
                       children: [
-                        Icon(Icons.check, color: Colors.green),
-                        SizedBox(width: 8),
-                        Text('Finish Workout'),
+                        Icon(Icons.check, color: baseBlue),
+                        const SizedBox(width: 8),
+                        const Text('Finish Workout'),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'cancel',
                     child: Row(
-                      children: [
+                      children: const [
                         Icon(Icons.close, color: Colors.red),
                         SizedBox(width: 8),
                         Text('Cancel Workout'),
@@ -72,7 +75,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green[50],
+                  color: Colors.white,
                   border: Border(
                     bottom: BorderSide(color: Colors.grey[300]!),
                   ),
@@ -127,9 +130,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                 ),
               );
             },
-            icon: const Icon(Icons.add),
-            label: const Text('Add Exercise'),
-            backgroundColor: Colors.green[600],
+            icon: const Icon(Icons.add,color: Colors.black,),
+            label: const Text('Add Exercise',style: TextStyle(color: Colors.black),),
+            backgroundColor: Colors.white,
           ),
         );
       },
@@ -139,7 +142,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   Widget _buildTimerStat(String label, String value, IconData icon) {
     return Column(
       children: [
-        Icon(icon, color: Colors.green[600], size: 24),
+        Icon(icon, color:  Color.fromARGB(255, 170, 160, 160), size: 24),
         const SizedBox(height: 4),
         Text(
           value,
@@ -192,6 +195,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
   Widget _buildExerciseCard(WorkoutExercise workoutExercise, int exerciseIndex) {
     return Card(
+      elevation: 8,
+      color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -216,7 +221,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                       Text(
                         workoutExercise.exercise.category,
                         style: TextStyle(
-                          color: Colors.grey[600],
+                          color: Colors.white,
                           fontSize: 14,
                         ),
                       ),
@@ -228,7 +233,21 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                     _showAddSetDialog(exerciseIndex);
                   },
                   icon: const Icon(Icons.add_circle),
-                  color: Colors.green[600],
+                  color: Colors.black,
+                ),
+                 IconButton(
+                  onPressed: () {
+                   //write code to remove exercise from workout
+                    context.read<GymCubit>().removeExerciseFromWorkout(exerciseIndex);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Exercise removed from workout'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.delete),
+                  color: Colors.black,
                 ),
               ],
             ),
@@ -257,11 +276,16 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
-                      children: [
-                        const SizedBox(width: 40),
-                        const Expanded(child: Text('Reps', style: TextStyle(fontWeight: FontWeight.w600))),
-                        const Expanded(child: Text('Weight', style: TextStyle(fontWeight: FontWeight.w600))),
-                        const SizedBox(width: 40),
+                      children: const [
+                        SizedBox(width: 90),
+                        Expanded(
+                            child: Text('Reps',
+                                style: TextStyle(fontWeight: FontWeight.w600))),
+                        SizedBox(width: 40),
+                        Expanded(
+                            child: Text('Weight',
+                                style: TextStyle(fontWeight: FontWeight.w600))),
+                        SizedBox(width: 40),
                       ],
                     ),
                   ),
@@ -314,7 +338,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   context.read<GymCubit>().completeSet(exerciseIndex, setIndex);
                 }
               },
-              activeColor: Colors.green[600],
+              activeColor: Colors.black54,
             ),
           ),
         ],
@@ -329,6 +353,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text('Add Set'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -337,9 +362,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               controller: repsController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
+                focusColor: Colors.black,
                 labelText: 'Reps',
                 border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black54, width: 1.5),
+                ),
               ),
+              
             ),
             const SizedBox(height: 16),
             TextField(
@@ -348,6 +378,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               decoration: const InputDecoration(
                 labelText: 'Weight (kg)',
                 border: OutlineInputBorder(),
+                 focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black54, width: 1.5),
+                ),
               ),
             ),
           ],
@@ -355,7 +388,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel',style: TextStyle(color: Colors.black),selectionColor: Colors.white,),
           ),
           ElevatedButton(
             onPressed: () {
@@ -367,7 +400,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                 Navigator.pop(context);
               }
             },
-            child: const Text('Add Set'),
+            style: ElevatedButton.styleFrom(backgroundColor: baseBlue),
+            child: const Text('Add Set',style: TextStyle(color: Colors.black),selectionColor: Colors.white),
           ),
         ],
       ),
@@ -391,12 +425,13 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Close workout screen
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Workout completed! 🎉'),
-                  backgroundColor: Colors.green,
+                SnackBar(
+                  content: const Text('Workout completed! 🎉'),
+                  backgroundColor: baseBlue,
                 ),
               );
             },
+            style: ElevatedButton.styleFrom(backgroundColor: baseBlue),
             child: const Text('Finish'),
           ),
         ],
@@ -435,7 +470,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     final duration = DateTime.now().difference(startTime);
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
-    
+
     if (minutes > 0) {
       return '${minutes}m ${seconds}s';
     } else {

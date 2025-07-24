@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lift_life/presentation/dashboard/cubit/gym_cubit.dart';
 import 'package:lift_life/presentation/dashboard/views/cycling_screen.dart';
 import 'package:lift_life/presentation/dashboard/views/gym_screen.dart';
 import 'package:lift_life/presentation/dashboard/views/walking_screen.dart';
@@ -19,11 +21,9 @@ class _ActiveScreenState extends State<ActiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorHelper.backgroundColor,
       appBar: AppBar(
-         backgroundColor: ColorHelper.backgroundColor,
         title: Container(
-           padding: EdgeInsets.only(top: 30.0, left: 10.0, bottom: 10.0),
+          padding: EdgeInsets.only(top: 30.0, left: 10.0, bottom: 10.0),
           child: Text(
             'Activities',
             style: TextStyle(
@@ -31,7 +31,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
-          
+
             // 'Activities' replaced with TextHelper.status
           ),
         ),
@@ -95,7 +95,12 @@ class _ActiveScreenState extends State<ActiveScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const GymScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (_) => GymCubit(),
+                      child: GymScreen(),
+                    ),
+                  ),
                 );
               },
             ),
@@ -125,7 +130,10 @@ class _ActiveScreenState extends State<ActiveScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
-              colors: [Colors.white.withOpacity(1.0), Colors.white.withOpacity(1.0)],
+              colors: [
+                Colors.white.withOpacity(1.0),
+                Colors.white.withOpacity(1.0),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

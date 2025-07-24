@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -133,7 +132,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorHelper.backgroundColor,
       appBar: AppBar(
+        backgroundColor: ColorHelper.backgroundColor,
         title: Text('Confirm Food Item'),
         actions: [
           TextButton(
@@ -200,6 +201,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                 hintText: 'Enter weight in grams',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black54, width: 1.5),
                 ),
                 suffixText: 'g',
                 prefixIcon: Icon(Icons.scale),
@@ -315,6 +319,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
               child: ElevatedButton(
                 onPressed: _confirmAndAddMeal,
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -322,7 +327,8 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                 ),
                 child: Text(
                   'Add to Food Log',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
               ),
             ),

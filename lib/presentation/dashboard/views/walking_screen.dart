@@ -178,11 +178,9 @@ class _WalkingScreenState extends State<WalkingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-
       appBar: AppBar(
-        backgroundColor: Colors.white, // Optional: sets background white
-        foregroundColor: Colors.black, // Sets back arrow and title color
+        // backgroundColor: Colors.white, // Optional: sets background white
+        // foregroundColor: Colors.black, // Sets back arrow and title color
         title: Text(
           TextHelper.walking,
           style: const TextStyle(
@@ -224,7 +222,6 @@ class _WalkingScreenState extends State<WalkingScreen>
               await _initPedometer();
             },
             child: SingleChildScrollView(
-              
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -270,7 +267,7 @@ class _WalkingScreenState extends State<WalkingScreen>
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Colors.white
+                        color: Colors.white,
                         // gradient: LinearGradient(
                         //   colors: [Colors.green[400]!, Colors.green[600]!],
                         //   begin: Alignment.topLeft,
@@ -292,7 +289,7 @@ class _WalkingScreenState extends State<WalkingScreen>
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey ,
+                              color: Colors.blueGrey,
                             ),
                           ),
                           Text(
@@ -518,7 +515,6 @@ class _WalkingScreenState extends State<WalkingScreen>
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [

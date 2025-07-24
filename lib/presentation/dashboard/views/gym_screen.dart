@@ -19,18 +19,17 @@ class _GymScreenState extends State<GymScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorHelper.backgroundColor,
       appBar: AppBar(
         title: Text(
           TextHelper.gymWorkout,
           style: const TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontFamily: 'Roboto',
           ),
         ),
-        backgroundColor: ColorHelper.primaryColor,
-        iconTheme: const IconThemeData(color: Colors.white),
+
+        iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           BlocBuilder<GymCubit, GymState>(
             builder: (context, state) {
@@ -65,7 +64,7 @@ class _GymScreenState extends State<GymScreen> {
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -74,11 +73,13 @@ class _GymScreenState extends State<GymScreen> {
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(bottom: 16),
+                      margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: ColorHelper.errorColor.withOpacity(0.1),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: ColorHelper.errorColor.withOpacity(0.5)),
+                        border: Border.all(
+                          color: ColorHelper.errorColor.withOpacity(0.5),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -87,11 +88,17 @@ class _GymScreenState extends State<GymScreen> {
                           Expanded(
                             child: Text(
                               state.error!,
-                              style: const TextStyle(color: ColorHelper.errorColor, fontFamily: 'Roboto'),
+                              style: const TextStyle(
+                                color: ColorHelper.errorColor,
+                                fontFamily: 'Roboto',
+                              ),
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.close, color: ColorHelper.errorColor),
+                            icon: const Icon(
+                              Icons.close,
+                              color: ColorHelper.errorColor,
+                            ),
                             onPressed: () {
                               context.read<GymCubit>().clearError();
                             },
@@ -106,7 +113,7 @@ class _GymScreenState extends State<GymScreen> {
                   else
                     _buildStartWorkoutCard(),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Quick Stats
                   Row(
@@ -119,7 +126,7 @@ class _GymScreenState extends State<GymScreen> {
                           ColorHelper.primaryColor,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: _buildGymStatCard(
                           TextHelper.totalTime,
@@ -131,7 +138,7 @@ class _GymScreenState extends State<GymScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   // Additional stats row
                   Row(
@@ -144,7 +151,7 @@ class _GymScreenState extends State<GymScreen> {
                           Colors.orange,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: _buildGymStatCard(
                           'Total Workouts',
@@ -155,9 +162,7 @@ class _GymScreenState extends State<GymScreen> {
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 24),
-
+                  const SizedBox(height: 16),
                   // Workout History
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -165,7 +170,7 @@ class _GymScreenState extends State<GymScreen> {
                       const Text(
                         'Recent Workouts',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
@@ -175,18 +180,21 @@ class _GymScreenState extends State<GymScreen> {
                           onPressed: () {
                             // Navigate to full history
                           },
-                          child: const Text('View All'),
+                          child: const Text(
+                            'View All',
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
 
                   if (state.workoutHistory.isEmpty)
                     _buildEmptyState()
                   else
-                    ...state.workoutHistory.take(5).map(
-                          (workout) => _buildWorkoutHistoryCard(workout),
-                        ),
+                    ...state.workoutHistory
+                        .take(5)
+                        .map((workout) => _buildWorkoutHistoryCard(workout)),
                 ],
               ),
             ),
@@ -197,82 +205,156 @@ class _GymScreenState extends State<GymScreen> {
   }
 
   Widget _buildStartWorkoutCard() {
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.grey[50]!, Colors.grey[100]!],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            colors: [Colors.red[400]!, Colors.red[600]!],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
           children: [
-            const Icon(
-              Icons.fitness_center,
-              size: 60,
-              color: Colors.white,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                Icons.fitness_center,
+                size: 32,
+                color: Colors.grey[700],
+              ),
             ),
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: 12),
+            Text(
               'Ready for Today\'s',
-              style: TextStyle(fontSize: 18, color: Colors.white70),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
             ),
             const Text(
               'Workout?',
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black87,
               ),
             ),
             const SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _showStartWorkoutDialog();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.red[600],
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.grey[800]!, Colors.grey[900]!],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ),
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text(
-                    'Start Workout',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        _showStartWorkoutDialog();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: Icon(Icons.play_arrow, size: 20),
+                      label: const Text(
+                        'Start Workout',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ExerciseSelectionScreen(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.3),
+                        width: 1.5,
                       ),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context, //ExerciseSelectionScreen
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (_) => GymCubit(),
+                              child: ExerciseSelectionScreen(),
+                            ),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.grey[700],
+                        side: BorderSide.none,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.list, size: 20),
+                      label: const Text(
+                        'Exercises',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
                   ),
-                  icon: const Icon(Icons.list),
-                  label: const Text('Exercises'),
                 ),
               ],
             ),
@@ -283,69 +365,109 @@ class _GymScreenState extends State<GymScreen> {
   }
 
   Widget _buildActiveWorkoutCard(Workout workout) {
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.blue[50]!, Colors.blue[100]!],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.withOpacity(0.2), width: 1),
       ),
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            colors: [Colors.green[400]!, Colors.green[600]!],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
           children: [
-            const Icon(
-              Icons.play_circle_filled,
-              size: 60,
-              color: Colors.white,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[100],
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: Colors.blue.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.play_circle_filled,
+                  size: 32,
+                  color: Colors.blue[700],
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ActiveWorkoutScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               workout.name,
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black87,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               'Workout in Progress',
-              style: const TextStyle(fontSize: 16, color: Colors.white70),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               '${workout.exercises.length} exercises • ${workout.totalSets} sets',
-              style: const TextStyle(fontSize: 14, color: Colors.white70),
+              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ActiveWorkoutScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.green[600],
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 12,
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue[600]!, Colors.blue[700]!],
                 ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              icon: const Icon(Icons.fitness_center),
-              label: const Text(
-                'Continue Workout',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ActiveWorkoutScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: Icon(Icons.fitness_center, size: 20),
+                label: const Text(
+                  'Continue Workout',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
             ),
           ],
@@ -355,34 +477,46 @@ class _GymScreenState extends State<GymScreen> {
   }
 
   Widget _buildWorkoutHistoryCard(Workout workout) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.05),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.red[100],
-          child: Icon(
-            Icons.fitness_center,
-            color: Colors.red[600],
+        contentPadding: const EdgeInsets.all(12),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
           ),
+          child: Icon(Icons.fitness_center, color: Colors.grey[600], size: 20),
         ),
         title: Text(
           workout.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Text(
           '${_formatDate(workout.date)} • ${workout.exercises.length} exercises • ${workout.duration ?? 0}m • ${workout.estimatedCalories ?? 0} cal',
+          style: const TextStyle(fontSize: 11),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (workout.isCompleted)
-              Icon(Icons.check_circle, color: Colors.green[600], size: 20),
+              Icon(Icons.check_circle, color: Colors.green[600], size: 16),
             const SizedBox(width: 4),
-            const Icon(Icons.arrow_forward_ios, size: 16),
+            Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey[400]),
           ],
         ),
         onTap: () {
@@ -400,27 +534,23 @@ class _GymScreenState extends State<GymScreen> {
   Widget _buildEmptyState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Icon(
-            Icons.fitness_center,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
+          Icon(Icons.fitness_center, size: 48, color: Colors.grey[400]),
+          const SizedBox(height: 12),
           Text(
             'No workouts yet',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'Start your first workout to see your progress here',
-            style: TextStyle(
-              color: Colors.grey[500],
-            ),
+            style: TextStyle(color: Colors.grey[500], fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
@@ -428,24 +558,49 @@ class _GymScreenState extends State<GymScreen> {
     );
   }
 
-  Widget _buildGymStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+  Widget _buildGymStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.grey[50]!, Colors.grey[100]!],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Column(
           children: [
-            Icon(icon, size: 28, color: color),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: color.withOpacity(0.3), width: 0.5),
+              ),
+              child: Icon(icon, size: 20, color: color),
+            ),
+            const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             Text(
               title,
-              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -456,13 +611,15 @@ class _GymScreenState extends State<GymScreen> {
 
   void _showStartWorkoutDialog() {
     final controller = TextEditingController(text: 'My Workout');
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text('Start New Workout'),
         content: TextField(
           controller: controller,
+          // cursorColor: Colors.black,
           decoration: const InputDecoration(
             labelText: 'Workout Name',
             border: OutlineInputBorder(),
@@ -483,6 +640,15 @@ class _GymScreenState extends State<GymScreen> {
                   builder: (context) => const ActiveWorkoutScreen(),
                 ),
               );
+              // Navigator.push(
+              //             context, //ExerciseSelectionScreen
+              //             MaterialPageRoute(
+              //               builder: (context) => BlocProvider(
+              //                 create: (_) => GymCubit(),
+              //                 child: ActiveWorkoutScreen(),
+              //               ),
+              //             ),
+              //           );
             },
             child: const Text('Start'),
           ),
@@ -512,7 +678,9 @@ class _GymScreenState extends State<GymScreen> {
     } else {
       final hours = minutes ~/ 60;
       final remainingMinutes = minutes % 60;
-      return remainingMinutes > 0 ? '${hours}h ${remainingMinutes}m' : '${hours}h';
+      return remainingMinutes > 0
+          ? '${hours}h ${remainingMinutes}m'
+          : '${hours}h';
     }
   }
 }

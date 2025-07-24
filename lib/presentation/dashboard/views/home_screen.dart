@@ -22,7 +22,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      // backgroundColor: Colors.grey[50],
       body: SafeArea(
         child: BlocBuilder<FoodLogCubit, FoodLogState>(
           builder: (context, state) {
