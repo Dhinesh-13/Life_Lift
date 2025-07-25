@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/presentation/dashboard/cubit/gym_cubit.dart';
 import 'package:lift_life/presentation/dashboard/views/cycling_screen.dart';
-import 'package:lift_life/presentation/dashboard/views/gym_screen.dart';
+import 'package:lift_life/presentation/dashboard/views/gym_screen.dart' as gym;
 import 'package:lift_life/presentation/dashboard/views/walking_screen.dart';
 import 'package:lift_life/helper/ColorHelper.dart';
 import 'package:lift_life/helper/TextHelper.dart';
-import 'dart:async';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:pedometer/pedometer.dart';
-
 class ActiveScreen extends StatefulWidget {
   const ActiveScreen({super.key});
 
@@ -98,7 +94,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
                   MaterialPageRoute(
                     builder: (context) => BlocProvider(
                       create: (_) => GymCubit(),
-                      child: GymScreen(),
+                      child: gym.GymScreen(),
                     ),
                   ),
                 );

@@ -11,20 +11,19 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-   int _currentIndex = 0;
+  int _currentIndex = 0;
   final List<Widget> _screens = [
     FoodTrackerHomeScreen(),
     CaloriesTrackerScreen(),
     ActiveScreen(),
-
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       body: _screens[_currentIndex],
+      body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.black,
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.black,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -32,13 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           });
         },
         items: [
-          BottomNavigationBarItem(
-          
-
-            icon: Icon(Icons.home),
-            label: 'Home',
-
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.connect_without_contact_sharp),
             label: 'Tracker',

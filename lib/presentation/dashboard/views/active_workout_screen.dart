@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/data/model/workout_models.dart';
@@ -13,6 +16,23 @@ class ActiveWorkoutScreen extends StatefulWidget {
 
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   final Color baseBlue = Colors.blue[100]!;
+  Timer? _timer;
+  
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {}); // This will update the duration display
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,116 +43,135 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         if (workout == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Workout')),
-            body: const Center(
-              child: Text('No active workout'),
-            ),
+            body: const Center(child: Text('No active workout')),
           );
         }
 
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: Text(workout.name),
+        return PopScope(
+          onPopInvoked: (didPop) {
+            // Handle back navigation
+            if (didPop) {
+              // Optional: Add any cleanup logic here
+            }
+          },
+          child: Scaffold(
             backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            actions: [
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'finish') {
-                    _showFinishWorkoutDialog();
-                  } else if (value == 'cancel') {
-                    _showCancelWorkoutDialog();
-                  }
+            appBar: AppBar(
+              title: Text(workout.name),
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
                 },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'finish',
-                    child: Row(
-                      children: [
-                        Icon(Icons.check, color: baseBlue),
-                        const SizedBox(width: 8),
-                        const Text('Finish Workout'),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'cancel',
-                    child: Row(
-                      children: const [
-                        Icon(Icons.close, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text('Cancel Workout'),
-                      ],
-                    ),
-                  ),
-                ],
               ),
-            ],
-          ),
-          body: Column(
-            children: [
-              // Workout timer and stats
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey[300]!),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildTimerStat(
-                      'Duration',
-                      _getWorkoutDuration(workout.startTime!),
-                      Icons.timer,
+              actions: [
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'finish') {
+                      _showFinishWorkoutDialog();
+                    } else if (value == 'cancel') {
+                      _showCancelWorkoutDialog();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'finish',
+                      child: Row(
+                        children: [
+                          Icon(Icons.check, color: baseBlue),
+                          const SizedBox(width: 8),
+                          const Text('Finish Workout'),
+                        ],
+                      ),
                     ),
-                    _buildTimerStat(
-                      'Exercises',
-                      '${workout.exercises.length}',
-                      Icons.fitness_center,
-                    ),
-                    _buildTimerStat(
-                      'Sets',
-                      '${workout.totalSets}',
-                      Icons.repeat,
+                    const PopupMenuItem(
+                      value: 'cancel',
+                      child: Row(
+                        children: [
+                          Icon(Icons.close, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Cancel Workout'),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-
-              // Exercises list
-              Expanded(
-                child: workout.exercises.isEmpty
-                    ? _buildEmptyExercisesList()
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: workout.exercises.length,
-                        itemBuilder: (context, index) {
-                          return _buildExerciseCard(
-                            workout.exercises[index],
-                            index,
-                          );
-                        },
+              ],
+            ),
+            body: Column(
+              children: [
+                // Workout timer and stats
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey[300]!),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildTimerStat(
+                        'Duration',
+                        _getWorkoutDuration(workout.startTime!),
+                        Icons.timer,
                       ),
-              ),
-            ],
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ExerciseSelectionScreen(
-                    isSelectingForWorkout: true,
+                      _buildTimerStat(
+                        'Exercises',
+                        '${workout.exercises.length}',
+                        Icons.fitness_center,
+                      ),
+                      _buildTimerStat(
+                        'Sets',
+                        '${workout.totalSets}',
+                        Icons.repeat,
+                      ),
+                    ],
                   ),
                 ),
-              );
-            },
-            icon: const Icon(Icons.add,color: Colors.black,),
-            label: const Text('Add Exercise',style: TextStyle(color: Colors.black),),
-            backgroundColor: Colors.white,
+
+                // Exercises list
+                Expanded(
+                  child: workout.exercises.isEmpty
+                      ? _buildEmptyExercisesList()
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: workout.exercises.length,
+                          itemBuilder: (context, index) {
+                            return _buildExerciseCard(
+                              workout.exercises[index],
+                              index,
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton.extended(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider.value(
+                      value: context.read<GymCubit>(),
+                      child: const ExerciseSelectionScreen(
+                        isSelectingForWorkout: true,
+                      ),
+                    ),
+                  ),
+                );
+                // No need to call loadData() since using same cubit instance
+              },
+              icon: const Icon(Icons.add, color: Colors.black),
+              label: const Text(
+                'Add Exercise',
+                style: TextStyle(color: Colors.black),
+              ),
+              backgroundColor: Colors.white,
+            ),
           ),
         );
       },
@@ -142,22 +181,13 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   Widget _buildTimerStat(String label, String value, IconData icon) {
     return Column(
       children: [
-        Icon(icon, color:  Color.fromARGB(255, 170, 160, 160), size: 24),
+        Icon(icon, color: const Color.fromARGB(255, 170, 160, 160), size: 24),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
@@ -169,17 +199,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.fitness_center,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.fitness_center, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'No exercises added yet',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -193,7 +220,10 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     );
   }
 
-  Widget _buildExerciseCard(WorkoutExercise workoutExercise, int exerciseIndex) {
+  Widget _buildExerciseCard(
+    WorkoutExercise workoutExercise,
+    int exerciseIndex,
+  ) {
     return Card(
       elevation: 8,
       color: Colors.white,
@@ -220,10 +250,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                       ),
                       Text(
                         workoutExercise.exercise.category,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ],
                   ),
@@ -235,19 +262,15 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   icon: const Icon(Icons.add_circle),
                   color: Colors.black,
                 ),
-                 IconButton(
+                IconButton(
                   onPressed: () {
-                   //write code to remove exercise from workout
-                    context.read<GymCubit>().removeExerciseFromWorkout(exerciseIndex);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Exercise removed from workout'),
-                        backgroundColor: Colors.red,
-                      ),
+                    _showRemoveExerciseDialog(
+                      exerciseIndex,
+                      workoutExercise.exercise.name,
                     );
                   },
                   icon: const Icon(Icons.delete),
-                  color: Colors.black,
+                  color: Colors.red,
                 ),
               ],
             ),
@@ -273,18 +296,33 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               Column(
                 children: [
                   // Sets header
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
-                      children: const [
-                        SizedBox(width: 90),
+                      children: [
+                        SizedBox(
+                          width: 40,
+                          child: Text(
+                            'Set',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        SizedBox(width: 20),
                         Expanded(
-                            child: Text('Reps',
-                                style: TextStyle(fontWeight: FontWeight.w600))),
-                        SizedBox(width: 40),
+                          child: Text(
+                            'Reps',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        SizedBox(width: 20),
                         Expanded(
-                            child: Text('Weight',
-                                style: TextStyle(fontWeight: FontWeight.w600))),
+                          child: Text(
+                            'Weight',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                         SizedBox(width: 40),
                       ],
                     ),
@@ -317,18 +355,10 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               textAlign: TextAlign.center,
             ),
           ),
-          Expanded(
-            child: Text(
-              '${set.reps}',
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              '${set.weight}kg',
-              textAlign: TextAlign.center,
-            ),
-          ),
+          const SizedBox(width: 20),
+          Expanded(child: Text('${set.reps}', textAlign: TextAlign.center)),
+          const SizedBox(width: 20),
+          Expanded(child: Text('${set.weight}kg', textAlign: TextAlign.center)),
           SizedBox(
             width: 40,
             child: Checkbox(
@@ -340,6 +370,44 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               },
               activeColor: Colors.black54,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRemoveExerciseDialog(int exerciseIndex, String exerciseName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text('Remove Exercise'),
+        content: Text(
+          'Are you sure you want to remove "$exerciseName" from your workout?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await context.read<GymCubit>().removeExerciseFromWorkout(
+                exerciseIndex,
+              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('$exerciseName removed from workout'),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Remove', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -369,7 +437,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   borderSide: BorderSide(color: Colors.black54, width: 1.5),
                 ),
               ),
-              
             ),
             const SizedBox(height: 16),
             TextField(
@@ -378,7 +445,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               decoration: const InputDecoration(
                 labelText: 'Weight (kg)',
                 border: OutlineInputBorder(),
-                 focusedBorder: OutlineInputBorder(
+                focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.black54, width: 1.5),
                 ),
               ),
@@ -388,20 +455,31 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',style: TextStyle(color: Colors.black),selectionColor: Colors.white,),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               final reps = int.tryParse(repsController.text);
               final weight = double.tryParse(weightController.text);
 
-              if (reps != null && weight != null) {
-                context.read<GymCubit>().addSetToExercise(exerciseIndex, reps, weight);
+              if (reps != null && weight != null && reps > 0 && weight >= 0) {
+                await context.read<GymCubit>().addSetToExercise(
+                  exerciseIndex,
+                  reps,
+                  weight,
+                );
                 Navigator.pop(context);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter valid reps and weight values'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: baseBlue),
-            child: const Text('Add Set',style: TextStyle(color: Colors.black),selectionColor: Colors.white),
+            child: const Text('Add Set', style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
@@ -412,27 +490,32 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text('Finish Workout'),
         content: const Text('Are you sure you want to finish this workout?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton(
-            onPressed: () {
-              context.read<GymCubit>().finishWorkout();
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Close workout screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Workout completed! 🎉'),
-                  backgroundColor: baseBlue,
-                ),
-              );
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog first
+              await context.read<GymCubit>().finishWorkout();
+
+              if (mounted) {
+                Navigator.pop(context); // Close workout screen
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Workout completed! 🎉'),
+                    backgroundColor: Colors.green,
+                    duration: Duration(seconds: 3),
+                  ),
+                );
+              }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: baseBlue),
-            child: const Text('Finish'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Finish', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -443,6 +526,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text('Cancel Workout'),
         content: const Text(
           'Are you sure you want to cancel this workout? All progress will be lost.',
@@ -450,16 +534,32 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Keep Workout'),
+            child: const Text(
+              'Keep Workout',
+              style: TextStyle(color: Colors.black),
+            ),
           ),
           ElevatedButton(
-            onPressed: () {
-              context.read<GymCubit>().cancelWorkout();
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Close workout screen
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog first
+              await context.read<GymCubit>().cancelWorkout();
+
+              if (mounted) {
+                Navigator.pop(context); // Close workout screen
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Workout cancelled'),
+                    backgroundColor: Colors.orange,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Cancel Workout'),
+            child: const Text(
+              'Cancel Workout',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

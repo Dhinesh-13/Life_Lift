@@ -15,7 +15,38 @@ class GymScreen extends StatefulWidget {
   State<GymScreen> createState() => _GymScreenState();
 }
 
-class _GymScreenState extends State<GymScreen> {
+class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Load data when screen initializes
+    print('Second time');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<GymCubit>().loadData();
+      // Future.delayed(Duration.zero,() => context.read<GymCubit>().loadData(),);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // This will be called when app comes back to foreground
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh data when app comes back to foreground
+      context.read<GymCubit>().loadData();
+    }
+  }
+
+  void refreshIndicator() {
+    context.read<GymCubit>().loadData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +59,6 @@ class _GymScreenState extends State<GymScreen> {
             fontFamily: 'Roboto',
           ),
         ),
-
         iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           BlocBuilder<GymCubit, GymState>(
@@ -36,13 +66,21 @@ class _GymScreenState extends State<GymScreen> {
               if (state.isWorkoutActive) {
                 return IconButton(
                   icon: const Icon(Icons.fitness_center),
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    // Use the same cubit instance, don't create new one
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ActiveWorkoutScreen(),
+                        builder: (context) => BlocProvider.value(
+                          value: context.read<GymCubit>(),
+                          child: const ActiveWorkoutScreen(),
+                        ),
                       ),
                     );
+                    // Refresh data when coming back
+                    if (mounted) {
+                      context.read<GymCubit>().loadData();
+                    }
                   },
                 );
               }
@@ -60,7 +98,7 @@ class _GymScreenState extends State<GymScreen> {
           return RefreshIndicator(
             onRefresh: () async {
               // Reload data
-              await context.read<GymCubit>().loadData();
+              await refreshIndicator;
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -285,6 +323,9 @@ class _GymScreenState extends State<GymScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         _showStartWorkoutDialog();
+                         context.read<GymCubit>().loadData();
+                        setState(()  {
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -325,16 +366,21 @@ class _GymScreenState extends State<GymScreen> {
                       ],
                     ),
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context, //ExerciseSelectionScreen
+                      onPressed: () async {
+                        // Use the same cubit instance, don't create new one
+                        final result = await Navigator.push(
+                          context,
                           MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (_) => GymCubit(),
-                              child: ExerciseSelectionScreen(),
+                            builder: (context) => BlocProvider.value(
+                              value: context.read<GymCubit>(),
+                              child: const ExerciseSelectionScreen(),
                             ),
                           ),
                         );
+                        // Refresh data when coming back
+                        if (mounted) {
+                          context.read<GymCubit>().loadData();
+                        }
                       },
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -400,13 +446,22 @@ class _GymScreenState extends State<GymScreen> {
                   size: 32,
                   color: Colors.blue[700],
                 ),
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  // Use the same cubit instance
+                  refreshIndicator();
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ActiveWorkoutScreen(),
+                      builder: (context) => BlocProvider.value(
+                        value: context.read<GymCubit>(),
+                        child: const ActiveWorkoutScreen(),
+                      ),
                     ),
                   );
+                  // Refresh data when coming back
+                  if (mounted) {
+                    context.read<GymCubit>().loadData();
+                  }
                 },
               ),
             ),
@@ -446,13 +501,18 @@ class _GymScreenState extends State<GymScreen> {
                 ],
               ),
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ActiveWorkoutScreen(),
+                      builder: (context) => BlocProvider.value(
+                        value: context.read<GymCubit>(),
+                        child: const ActiveWorkoutScreen(),
+                      ),
                     ),
                   );
+                  // No need to call loadData() since using same cubit instance
+                  // State changes in ActiveWorkoutScreen will automatically reflect here
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
@@ -463,7 +523,7 @@ class _GymScreenState extends State<GymScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                icon: Icon(Icons.fitness_center, size: 20),
+                icon: const Icon(Icons.fitness_center, size: 20),
                 label: const Text(
                   'Continue Workout',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -615,11 +675,9 @@ class _GymScreenState extends State<GymScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
         title: const Text('Start New Workout'),
         content: TextField(
           controller: controller,
-          // cursorColor: Colors.black,
           decoration: const InputDecoration(
             labelText: 'Workout Name',
             border: OutlineInputBorder(),
@@ -630,25 +688,45 @@ class _GymScreenState extends State<GymScreen> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
+          // ElevatedButton(
+          //   onPressed: ()async {
+          //     Navigator.pop(context);
+          //     await context.read<GymCubit>().startWorkout(controller.text);
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => const ActiveWorkoutScreen(),
+          //       ),
+          //     );
+          //   },
+          //   child: const Text('Start'),
+          // ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              context.read<GymCubit>().startWorkout(controller.text);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ActiveWorkoutScreen(),
-                ),
-              );
-              // Navigator.push(
-              //             context, //ExerciseSelectionScreen
-              //             MaterialPageRoute(
-              //               builder: (context) => BlocProvider(
-              //                 create: (_) => GymCubit(),
-              //                 child: ActiveWorkoutScreen(),
-              //               ),
-              //             ),
-              //           );
+
+              try {
+                // Start workout and wait for completion
+                await context.read<GymCubit>().startWorkout(controller.text);
+                // setState(()async {
+                //   await context.read<GymCubit>().loadData();
+                // });
+
+                // Navigate to active workout screen
+                if (context.mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ActiveWorkoutScreen(),
+                    ),
+                  );
+                }
+              } catch (e) {
+                // Handle error if needed
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to start workout: $e')),
+                );
+              }
             },
             child: const Text('Start'),
           ),
