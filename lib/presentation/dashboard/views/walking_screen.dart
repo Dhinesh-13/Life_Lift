@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/presentation/dashboard/cubit/step_count_cubit.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 
 class WalkingScreen extends StatefulWidget {
   const WalkingScreen({super.key});
@@ -12,7 +14,8 @@ class WalkingScreen extends StatefulWidget {
   State<WalkingScreen> createState() => _WalkingScreenState();
 }
 
-class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserver {
+class _WalkingScreenState extends State<WalkingScreen>
+    with WidgetsBindingObserver {
   StreamSubscription<StepCount>? _stepCountSubscription;
   StreamSubscription<PedestrianStatus>? _pedestrianStatusSubscription;
   bool _isPermissionGranted = false;
@@ -55,7 +58,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
         _onStepCount,
         onError: _onStepCountError,
       );
-      
+
       _pedestrianStatusSubscription = Pedometer.pedestrianStatusStream.listen(
         _onPedestrianStatusChanged,
         onError: _onPedestrianStatusError,
@@ -78,7 +81,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
   }
 
   void _onStepCountError(error) {
-    debugPrint('Step count error: $error');
+    debugPrint(TextHelper.stepCountError);
   }
 
   void _onPedestrianStatusChanged(PedestrianStatus event) {
@@ -86,8 +89,8 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
   }
 
   void _onPedestrianStatusError(error) {
-    context.read<StepCountCubit>().updatePedestrianStatus('unavailable');
-    debugPrint('Pedestrian status error: $error');
+    context.read<StepCountCubit>().updatePedestrianStatus(TextHelper.unavailable);
+    debugPrint(TextHelper.pedestrianStatusError);
   }
 
   void _showPermissionDialog() {
@@ -95,21 +98,31 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Permission Required'),
-        content: const Text(
-          'This app needs activity recognition permission to count your steps. Please grant permission in settings.',
+        title: Text(
+          TextHelper.error,
+          style: const TextStyle(fontFamily: 'Roboto'),
+        ),
+        content: Text(
+          TextHelper.activityRecognitionPermission,
+          style: const TextStyle(fontFamily: 'Roboto'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(
+              TextHelper.back,
+              style: const TextStyle(fontFamily: 'Roboto'),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
               await openAppSettings();
             },
-            child: const Text('Open Settings'),
+            child: Text(
+              TextHelper.next,
+              style: const TextStyle(fontFamily: 'Roboto'),
+            ),
           ),
         ],
       ),
@@ -120,23 +133,29 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
     final controller = TextEditingController(
       text: context.read<StepCountCubit>().state.dailyGoal.toString(),
     );
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Set Daily Goal'),
+        title: Text(
+          TextHelper.stepsGoal,
+          style: const TextStyle(fontFamily: 'Roboto'),
+        ),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
           decoration: const InputDecoration(
-            labelText: 'Steps',
+            labelText: TextHelper.steps,
             border: OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(
+              TextHelper.back,
+              style: const TextStyle(fontFamily: 'Roboto'),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -146,7 +165,10 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                 Navigator.pop(context);
               }
             },
-            child: const Text('Set Goal'),
+            child: Text(
+              TextHelper.next,
+              style: const TextStyle(fontFamily: 'Roboto'),
+            ),
           ),
         ],
       ),
@@ -156,26 +178,32 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[50],
       appBar: AppBar(
-        title: const Text(
-          'Walking Tracker',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        // backgroundColor: Colors.white, // Optional: sets background white
+        // foregroundColor: Colors.black, // Sets back arrow and title color
+        title: Text(
+          TextHelper.walking,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Roboto',
+          ),
         ),
-        backgroundColor: Colors.green[600],
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(
+          color: Colors.black,
+        ), // Makes flag & refresh icons black
         actions: [
           IconButton(
             onPressed: _showGoalDialog,
             icon: const Icon(Icons.flag),
-            tooltip: 'Set Goal',
+            tooltip: TextHelper.stepsGoal,
           ),
           IconButton(
             onPressed: () {
               context.read<StepCountCubit>().resetSteps();
             },
             icon: const Icon(Icons.refresh),
-            tooltip: 'Reset Steps',
+            tooltip:  TextHelper.resetSteps,
           ),
         ],
       ),
@@ -205,7 +233,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade100,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.red.shade300),
                       ),
@@ -239,18 +267,21 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [Colors.green[400]!, Colors.green[600]!],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        color: Colors.white,
+                        // gradient: LinearGradient(
+                        //   colors: [Colors.green[400]!, Colors.green[600]!],
+                        //   begin: Alignment.topLeft,
+                        //   end: Alignment.bottomRight,
+                        // ),
                       ),
                       child: Column(
                         children: [
                           Icon(
-                            state.goalReached ? Icons.emoji_events : Icons.directions_walk,
+                            state.goalReached
+                                ? Icons.emoji_events
+                                : Icons.directions_walk,
                             size: 60,
-                            color: Colors.white,
+                            color: Colors.blueGrey,
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -258,14 +289,16 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.blueGrey,
                             ),
                           ),
                           Text(
-                            state.goalReached ? 'Goal Reached! 🎉' : 'Steps Today',
+                            state.goalReached
+                                ? TextHelper.goalReached
+                                : TextHelper.stepsToday,
                             style: const TextStyle(
                               fontSize: 18,
-                              color: Colors.white70,
+                              color: Colors.black,
                             ),
                           ),
                         ],
@@ -279,7 +312,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                     children: [
                       Expanded(
                         child: _buildStatCard(
-                          'Distance',
+                          TextHelper.distance,
                           '${state.distanceKm.toStringAsFixed(2)} km',
                           Icons.straighten,
                           Colors.blue,
@@ -288,7 +321,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildStatCard(
-                          'Calories',
+                          TextHelper.calories,
                           '${state.caloriesBurned} cal',
                           Icons.local_fire_department,
                           Colors.orange,
@@ -300,6 +333,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
 
                   // Goal Progress
                   Card(
+                    color: Colors.white,
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -312,8 +346,8 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Daily Goal Progress',
+                              Text(
+                                TextHelper.dailyGoalProgress,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -330,7 +364,9 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                             value: state.progressPercentage,
                             backgroundColor: Colors.grey[300],
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              state.goalReached ? Colors.green[600]! : Colors.blue[600]!,
+                              state.goalReached
+                                  ? Colors.green[600]!
+                                  : Colors.blue[600]!,
                             ),
                             minHeight: 10,
                           ),
@@ -339,7 +375,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '${state.totalSteps}/${state.dailyGoal} steps',
+                                '${state.totalSteps}/${state.dailyGoal} ${TextHelper.steps}',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
@@ -359,7 +395,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                             Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: Text(
-                                '${state.remainingSteps} steps remaining',
+                                '${state.remainingSteps} ${TextHelper.steps}  ${TextHelper.remaining} ',
                                 style: TextStyle(
                                   color: Colors.blue[600],
                                   fontSize: 12,
@@ -374,6 +410,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
 
                   // Pedestrian Status and Last Updated
                   Card(
+                    color: Colors.white,
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -395,14 +432,14 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Status: ${_getStatusText(state.pedestrianStatus)}',
+                                      '${TextHelper.status}: ${_getStatusText(state.pedestrianStatus)}',
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     Text(
-                                      'Updated: ${_formatTime(state.lastUpdated)}',
+                                      '${TextHelper.updated}: ${_formatTime(state.lastUpdated)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[600],
@@ -433,26 +470,19 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.security,
-              size: 80,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.security, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
-              'Permission Required',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              TextHelper.permissionRequired,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Text(
-              'This app needs activity recognition permission to track your steps accurately.',
+              TextHelper.activityRecognitionPermissions,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
@@ -460,7 +490,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
                 await _initPedometer();
               },
               icon: const Icon(Icons.settings),
-              label: const Text('Grant Permission'),
+              label: const Text(TextHelper.grantPermission),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -474,35 +504,29 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Icon(
-              icon,
-              size: 32,
-              color: color,
-            ),
+            Icon(icon, size: 32, color: color),
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
               title,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -552,7 +576,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inSeconds < 60) {
       return 'Just now';
     } else if (difference.inMinutes < 60) {
@@ -560,7 +584,7 @@ class _WalkingScreenState extends State<WalkingScreen> with WidgetsBindingObserv
     } else if (difference.inHours < 24) {
       return '${difference.inHours}h ago';
     } else {
-      return '${dateTime.day}/${dateTime.month} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+      return '${dateTime.day}/${dateTime  .month} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
   }
 }

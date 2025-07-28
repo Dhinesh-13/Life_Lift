@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 import 'package:lift_life/presentation/dashboard/cubit/food_log_cubit.dart';
 import 'package:lift_life/data/model/food_item.dart';
 
@@ -89,15 +89,15 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Save Meal'),
+        title: Text(TextHelper.saveMeal),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _mealTitleController,
               decoration: InputDecoration(
-                labelText: 'Meal Title',
-                hintText: 'Enter meal name (e.g. Breakfast, Lunch)',
+                labelText: TextHelper.mealTitle,
+                hintText: TextHelper.enterMealName,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -118,7 +118,7 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: Text(TextHelper.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -128,13 +128,13 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Please enter a meal title'),
+                    content: Text(TextHelper.pleaseEnterMealTitle),
                     backgroundColor: Colors.orange,
                   ),
                 );
               }
             },
-            child: Text('Save Meal'),
+            child: Text(TextHelper.saveMeal),
           ),
         ],
       ),
@@ -153,7 +153,7 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
     if (selectedFoods.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please select at least one food item'),
+          content: Text(TextHelper.pleaseSelectAtLeastOneFoodItem),
           backgroundColor: Colors.orange,
         ),
       );
@@ -175,7 +175,7 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
           children: [
             CircularProgressIndicator(),
             SizedBox(width: 20),
-            Text('Saving meal...'),
+            Text(TextHelper.savingMeal),
           ],
         ),
       ),
@@ -206,7 +206,7 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
       if (selectedFoods.length > 1) {
         final combinedMeal = FoodItem(
           id: DateTime.now().millisecondsSinceEpoch.toString() + '_combined',
-          name: '$mealTitle - Combined',
+          name: '$mealTitle - ${TextHelper.combined}',
           calories: _totalCalories,
           protein: _totalProtein,
           carbs: _totalCarbs,
@@ -302,13 +302,13 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Confirm Food Items'),
+        title: Text(TextHelper.confirmFoodItems),
         actions: [
           // View saved meals button
           IconButton(
             icon: Icon(Icons.restaurant_menu),
             onPressed: _navigateToSavedMeals,
-            tooltip: 'View Saved Meals',
+            tooltip: TextHelper.viewSavedMeals,
           ),
         ],
       ),
@@ -324,14 +324,14 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Meal Title',
+                      TextHelper.mealTitle,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     SizedBox(height: 8),
                     TextField(
                       controller: _mealTitleController,
                       decoration: InputDecoration(
-                        hintText: 'Enter meal name (e.g. Breakfast, Lunch, Dinner)',
+                        hintText: TextHelper.enterMealName,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -385,22 +385,22 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _buildTotalNutritionItem(
-                          'Calories',
+                          TextHelper.calories,
                           _totalCalories.toStringAsFixed(0),
                           Colors.orange,
                         ),
                         _buildTotalNutritionItem(
-                          'Protein',  
+                          TextHelper.protein,  
                           '${_totalProtein.toStringAsFixed(1)}g',
                           Colors.red,
                         ),
                         _buildTotalNutritionItem(
-                          'Carbs',
+                          TextHelper.carbs,
                           '${_totalCarbs.toStringAsFixed(1)}g',
                           Colors.blue,
                         ),
                         _buildTotalNutritionItem(
-                          'Fat',
+                          TextHelper.fat,
                           '${_totalFat.toStringAsFixed(1)}g',
                           Colors.green,
                         ),
@@ -434,7 +434,7 @@ class _MultipleFoodConfirmationScreenState extends State<MultipleFoodConfirmatio
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                         SizedBox(width: 8),
-                        Text('Saving...'),
+                        Text(TextHelper.savingMeal),
                       ],
                     )
                   : Text(

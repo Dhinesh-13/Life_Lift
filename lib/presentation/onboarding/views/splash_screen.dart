@@ -41,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     } catch (e) {
       // Handle any errors that might occur during the onboarding check
-      print('Error during onboarding check: $e');
+      print('SplashScreen Error: $e');
     }
   }
 }

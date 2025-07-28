@@ -9,5 +9,9 @@ class Routes {
   static const String walkingScreen = '/walkingScreen';
   static const String cyclingScreen = '/cyclingScreen';
   static const String gymScreen = '/gymScreen';
+  static const String activeWorkoutScreen = '/activeWorkoutScreen'; 
+  static const String exerciseSelectionScreen = '/exerciseSelectionScreen';
+  static const String workoutDetailScreen = '/workoutDetailScreen';
+  static const String workoutHistoryScreen = '/workoutHistoryScreen'; 
     static getRouterPath(String routeName) => '/$routeName';
 }

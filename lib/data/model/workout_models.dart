@@ -1,5 +1,9 @@
 import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'workout_models.g.dart';
+
+@JsonSerializable()
 class Exercise extends Equatable {
   final String id;
   final String name;
@@ -7,7 +11,7 @@ class Exercise extends Equatable {
   final String description;
   final String? imageUrl;
   final List<String> targetMuscles;
-  final String difficulty; // beginner, intermediate, advanced
+  final String difficulty;
 
   const Exercise({
     required this.id,
@@ -19,38 +23,18 @@ class Exercise extends Equatable {
     required this.difficulty,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'category': category,
-      'description': description,
-      'imageUrl': imageUrl,
-      'targetMuscles': targetMuscles,
-      'difficulty': difficulty,
-    };
-  }
-
-  factory Exercise.fromJson(Map<String, dynamic> json) {
-    return Exercise(
-      id: json['id'],
-      name: json['name'],
-      category: json['category'],
-      description: json['description'],
-      imageUrl: json['imageUrl'],
-      targetMuscles: List<String>.from(json['targetMuscles']),
-      difficulty: json['difficulty'],
-    );
-  }
+  factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
+  Map<String, dynamic> toJson() => _$ExerciseToJson(this);
 
   @override
   List<Object?> get props => [id, name, category, description, imageUrl, targetMuscles, difficulty];
 }
 
+@JsonSerializable()
 class WorkoutSet extends Equatable {
   final int reps;
   final double weight;
-  final int? restTime; // in seconds
+  final int? restTime;
   final bool isCompleted;
 
   const WorkoutSet({
@@ -74,28 +58,14 @@ class WorkoutSet extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'reps': reps,
-      'weight': weight,
-      'restTime': restTime,
-      'isCompleted': isCompleted,
-    };
-  }
-
-  factory WorkoutSet.fromJson(Map<String, dynamic> json) {
-    return WorkoutSet(
-      reps: json['reps'],
-      weight: json['weight'].toDouble(),
-      restTime: json['restTime'],
-      isCompleted: json['isCompleted'] ?? false,
-    );
-  }
+  factory WorkoutSet.fromJson(Map<String, dynamic> json) => _$WorkoutSetFromJson(json);
+  Map<String, dynamic> toJson() => _$WorkoutSetToJson(this);
 
   @override
   List<Object?> get props => [reps, weight, restTime, isCompleted];
 }
 
+@JsonSerializable()
 class WorkoutExercise extends Equatable {
   final Exercise exercise;
   final List<WorkoutSet> sets;
@@ -127,36 +97,20 @@ class WorkoutExercise extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'exercise': exercise.toJson(),
-      'sets': sets.map((set) => set.toJson()).toList(),
-      'targetSets': targetSets,
-      'notes': notes,
-      'isCompleted': isCompleted,
-    };
-  }
-
-  factory WorkoutExercise.fromJson(Map<String, dynamic> json) {
-    return WorkoutExercise(
-      exercise: Exercise.fromJson(json['exercise']),
-      sets: (json['sets'] as List).map((set) => WorkoutSet.fromJson(set)).toList(),
-      targetSets: json['targetSets'],
-      notes: json['notes'] ?? '',
-      isCompleted: json['isCompleted'] ?? false,
-    );
-  }
+  factory WorkoutExercise.fromJson(Map<String, dynamic> json) => _$WorkoutExerciseFromJson(json);
+  Map<String, dynamic> toJson() => _$WorkoutExerciseToJson(this);
 
   @override
   List<Object?> get props => [exercise, sets, targetSets, notes, isCompleted];
 }
 
+@JsonSerializable()
 class Workout extends Equatable {
   final String id;
   final String name;
   final DateTime date;
   final List<WorkoutExercise> exercises;
-  final int? duration; // in minutes
+  final int? duration;
   final int? estimatedCalories;
   final String notes;
   final bool isCompleted;
@@ -202,40 +156,11 @@ class Workout extends Equatable {
     );
   }
 
-  int get totalSets => exercises.fold(0, (sum, exercise) => sum + exercise.sets.length);
-  int get completedExercises => exercises.where((exercise) => exercise.isCompleted).length;
+  int get totalSets => exercises.fold(0, (sum, e) => sum + e.sets.length);
+  int get completedExercises => exercises.where((e) => e.isCompleted).length;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'date': date.toIso8601String(),
-      'exercises': exercises.map((exercise) => exercise.toJson()).toList(),
-      'duration': duration,
-      'estimatedCalories': estimatedCalories,
-      'notes': notes,
-      'isCompleted': isCompleted,
-      'startTime': startTime?.toIso8601String(),
-      'endTime': endTime?.toIso8601String(),
-    };
-  }
-
-  factory Workout.fromJson(Map<String, dynamic> json) {
-    return Workout(
-      id: json['id'],
-      name: json['name'],
-      date: DateTime.parse(json['date']),
-      exercises: (json['exercises'] as List)
-          .map((exercise) => WorkoutExercise.fromJson(exercise))
-          .toList(),
-      duration: json['duration'],
-      estimatedCalories: json['estimatedCalories'],
-      notes: json['notes'] ?? '',
-      isCompleted: json['isCompleted'] ?? false,
-      startTime: json['startTime'] != null ? DateTime.parse(json['startTime']) : null,
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
-    );
-  }
+  factory Workout.fromJson(Map<String, dynamic> json) => _$WorkoutFromJson(json);
+  Map<String, dynamic> toJson() => _$WorkoutToJson(this);
 
   @override
   List<Object?> get props => [

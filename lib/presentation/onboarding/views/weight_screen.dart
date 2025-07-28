@@ -109,7 +109,7 @@ class _WeightScreenState extends State<WeightScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-              onboardingButton(text: 'Next', onPressed: () async {
+              onboardingButton(text: TextHelper.next , onPressed: () async {
                 if (_weightController.text.isNotEmpty) {
                   final weight = double.tryParse(_weightController.text);
                   if (weight != null) {
@@ -118,7 +118,7 @@ class _WeightScreenState extends State<WeightScreen> {
                   } 
                 }
                 navigateToScreen( Routes.heightScreen, replaceStack: false, arguments: {
-                      'weight': _weightController.text,
+                      TextHelper.weight: _weightController.text,
                     });
               }),
             ],

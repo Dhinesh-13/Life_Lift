@@ -507,8 +507,9 @@ class _CaloriesTrackerScreenState extends State<CaloriesTrackerScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
         onPressed: () => showImageSourceActionSheet(context),
-        child: Icon(Icons.add_a_photo),
+        child: Icon(Icons.add_a_photo, color: Colors.black,),
       ),
     );
   }

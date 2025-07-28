@@ -1,9 +1,9 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/helper/ColorHelper.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 import 'package:lift_life/presentation/dashboard/cubit/food_log_cubit.dart';
 import 'package:lift_life/data/model/food_item.dart';
 
@@ -100,7 +100,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
           children: [
             CircularProgressIndicator(),
             SizedBox(width: 20),
-            Text('Adding meal...'),
+            Text(TextHelper.addingMeal),
           ],
         ),
       ),
@@ -115,7 +115,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${widget.detectedFoodName} added successfully!'),
+          content: Text('${widget.detectedFoodName} ${TextHelper.addingMealSuccess}'),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         ),
@@ -133,13 +133,15 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorHelper.backgroundColor,
       appBar: AppBar(
-        title: Text('Confirm Food Item'),
+        backgroundColor: ColorHelper.backgroundColor,
+        title: Text(TextHelper.confirmFoodItem),
         actions: [
           TextButton(
             onPressed: widget.isEnable ? _confirmAndAddMeal : null,
             child: Text(
-              widget.isEnable ? 'Add' : 'End',
+              widget.isEnable ? TextHelper.add : TextHelper.end,
               style: TextStyle(
                 color: ColorHelper.textColor,
                 fontWeight: FontWeight.bold,
@@ -172,7 +174,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
             // Detected Food Name
             Text(
-              'Detected Food:',
+              TextHelper.detectedFood,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(color: Colors.grey.shade600),
@@ -189,7 +191,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
             // Weight Input
             Text(
-              'Enter Weight (grams):',
+              TextHelper.enterWeightGrams,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             SizedBox(height: 8),
@@ -197,9 +199,12 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
               controller: _weightController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: 'Enter weight in grams',
+                hintText: TextHelper.enterWeightGrams,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black54, width: 1.5),
                 ),
                 suffixText: 'g',
                 prefixIcon: Icon(Icons.scale),
@@ -217,7 +222,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Nutrition Information',
+                      TextHelper.nutritionInformation,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     SizedBox(height: 16),
@@ -227,16 +232,16 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                       children: [
                         Expanded(
                           child: _buildNutritionCard(
-                            'Calories',
+                            TextHelper.calories,
                             _calculatedCalories.toStringAsFixed(0),
-                            'kcal',
+                            TextHelper.kcal,
                             Colors.orange,
                           ),
                         ),
                         SizedBox(width: 8),
                         Expanded(
                           child: _buildNutritionCard(
-                            'Protein',
+                            TextHelper.protein,
                             _calculatedProtein.toStringAsFixed(1),
                             'g',
                             Colors.red,
@@ -249,7 +254,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                       children: [
                         Expanded(
                           child: _buildNutritionCard(
-                            'Carbs',
+                            TextHelper.carbs,
                             _calculatedCarbs.toStringAsFixed(1),
                             'g',
                             Colors.blue,
@@ -258,7 +263,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                         SizedBox(width: 8),
                         Expanded(
                           child: _buildNutritionCard(
-                            'Fat',
+                            TextHelper.fat,
                             _calculatedFat.toStringAsFixed(1),
                             'g',
                             Colors.green,
@@ -281,7 +286,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Base Values (per 100g):',
+                            TextHelper.baseValues,
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -290,10 +295,10 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Calories: ${widget.baseCalories.toStringAsFixed(0)} • '
-                            'Protein: ${widget.baseProtein.toStringAsFixed(1)}g • '
-                            'Carbs: ${widget.baseCarbs.toStringAsFixed(1)}g • '
-                            'Fat: ${widget.baseFat.toStringAsFixed(1)}g',
+                            '${TextHelper.calories}: ${widget.baseCalories.toStringAsFixed(0)} • '
+                            '${TextHelper.protein}: ${widget.baseProtein.toStringAsFixed(1)}g • '
+                            '${TextHelper.carbs}: ${widget.baseCarbs.toStringAsFixed(1)}g • '
+                            '${TextHelper.fat}: ${widget.baseFat.toStringAsFixed(1)}g',
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey.shade600,
@@ -315,14 +320,16 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
               child: ElevatedButton(
                 onPressed: _confirmAndAddMeal,
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: Text(
-                  'Add to Food Log',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  TextHelper.addToFoodLog,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
               ),
             ),

@@ -34,10 +34,10 @@ class GymState extends Equatable {
   }) {
     return GymState(
       workoutHistory: workoutHistory ?? this.workoutHistory,
-      currentWorkout: currentWorkout,
+      currentWorkout: currentWorkout ?? this.currentWorkout,
       availableExercises: availableExercises ?? this.availableExercises,
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      error: error??this.error,
       isWorkoutActive: isWorkoutActive ?? this.isWorkoutActive,
       workoutStartTime: workoutStartTime ?? this.workoutStartTime,
     );
@@ -185,16 +185,21 @@ class GymCubit extends Cubit<GymState> {
         exercises: [],
         startTime: DateTime.now(),
       );
-
+      // print(workout.name );
+      // print(workout.date);
+      // print(workout.startTime);
       emit(
         state.copyWith(
           currentWorkout: workout,
           isWorkoutActive: true,
           workoutStartTime: DateTime.now(),
+        
         ),
       );
+         print('After emit - Current state: ${state.currentWorkout?.name}');
 
       await _saveCurrentWorkout();
+      print(state.currentWorkout);
     } catch (e) {
       emit(state.copyWith(error: 'Failed to start workout: $e'));
     }
@@ -327,6 +332,33 @@ class GymCubit extends Cubit<GymState> {
       emit(state.copyWith(error: 'Failed to cancel workout: $e'));
     }
   }
+  
+  Future<void> removeExerciseFromWorkout(int exerciseIndex) async {
+    if (state.currentWorkout == null) return;
+
+    try {
+      // Check if exerciseIndex is valid
+      if (exerciseIndex < 0 || exerciseIndex >= state.currentWorkout!.exercises.length) {
+        emit(state.copyWith(error: 'Invalid exercise index'));
+        return;
+      }
+
+      // Create a new list without the exercise at the specified index
+      final exercises = [...state.currentWorkout!.exercises];
+      exercises.removeAt(exerciseIndex);
+
+      // Update the current workout with the new exercises list
+      final updatedWorkout = state.currentWorkout!.copyWith(exercises: exercises);
+
+      // Emit the new state
+      emit(state.copyWith(currentWorkout: updatedWorkout));
+
+      // Save the updated workout to storage
+      await _saveCurrentWorkout();
+    } catch (e) {
+      emit(state.copyWith(error: 'Failed to remove exercise: $e'));
+    }
+  }
 
   Future<void> deleteWorkout(String workoutId) async {
     try {
@@ -365,11 +397,16 @@ class GymCubit extends Cubit<GymState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (state.currentWorkout != null) {
-        await prefs.setString(
+       
+        await prefs.setString(   
           _currentWorkoutKey,
           jsonEncode(state.currentWorkout!.toJson()),
+
         );
+         print(state.currentWorkout);
       }
+      print(
+        state.currentWorkout?.name);
     } catch (e) {
       emit(state.copyWith(error: 'Failed to save current workout: $e'));
     }
