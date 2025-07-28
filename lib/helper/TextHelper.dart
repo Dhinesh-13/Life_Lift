@@ -1,13 +1,15 @@
 class TextHelper {
   TextHelper._();
-
   //onboarding texts
   static const String enterTheWeight = 'Enter your weight';
-
+  static const String enterYourAge = 'Enter your age';  
   static const String next = 'Next';
   static const String kg = 'kg';
-
+  static const String years = 'years';  
+  static const String weight = 'Weight';  
   static const String enterYourHeight = 'Enter Your Height';
+  static const String height = 'Height';  
+
 
   static const String cm = 'cm';
   static const String back = 'Back';
@@ -42,6 +44,8 @@ class TextHelper {
   static const String error = 'Error';
 
   // Activity screen texts
+  static const String activities = 'Activities'; 
+  static const String chooseYourActivity = 'Choose Your Activity';   
   static const String walking = 'Walking';
   static const String stepsToday = 'Steps Today';
   static const String distance = 'Distance';
@@ -57,7 +61,7 @@ class TextHelper {
   static const String cyclingSessionStarted = 'Cycling session started!';
   static const String gymWorkout = 'Gym Workout';
   static const String readyForToday = 'Ready for Today\'s';
-  static const String workout = 'Workout?';
+  static const String workouts = 'Workout?';
   static const String startWorkout = 'Start Workout';
   static const String workoutStarted = 'Workout started!';
   static const String thisWeek = 'This Week';
@@ -66,4 +70,113 @@ class TextHelper {
   static const String exercises = 'exercises';
   static const String caloriesShort = 'cal';
   static const String stepsGoal = '/10,000 steps';
+  static const String workout = 'Workout';  
+  static const String noActiveWorkout = 'No active workout';
+  static const String finishWorkout = 'Finish Workout';   
+  static const String cancelWorkout = 'Cancel Workout';  
+  static const String finish = 'finish'; 
+  static const String cancel = 'cancel';   
+  static const String workoutCompleted = 'Workout Completed'; 
+  static const String workoutCompletedMessage = 'Workout completed! 🎉' ;
+  static const String sets = 'Sets';
+  static const String addExercise = 'Add Exercise'; 
+  static const String noExercisesAddedYet = 'No exercises added yet';
+  static const String tapThePlusButtonToAddExercisesToYourWorkout = 'Tap the + button to add exercises to your workout';
+  static const String noSetsAddedYet = 'No sets added yet';
+  static const String reps = 'Reps';  
+  static const String isCompleted = 'Is Completed'; 
+  static const String addSet = 'Add Set'; 
+  static const String targetSets = 'Target Sets'; 
+  static const String notes = 'Notes';   
+  static const String removeExercise = 'Remove Exercise'; 
+  static const String areYouSureYouWantToRemove = 'Are you sure you want to remove';
+ static const String fromYourWorkout = " from your workout?";
+ static const String removedFromWorkout = 'removed from workout';
+ static const String remove='Remove';
+ static const String pleaseEnterValidRepsAndWeightValues='Please enter valid reps and weight values';
+ static const String areYouSureYouWantToFinishThisWorkout='Are you sure you want to finish this workout?';
+ static const String areYouSureYouWantToCancelThisWorkout='Are you sure you want to cancel this workout?';
+ static const String workoutCancelled='Workout cancelled';  
+ static const String workoutCancelledMessage='Workout cancelled'; 
+ static const String items='items'; 
+ static const String tapTheCameraButtonToAddYourFirstMeal='Tap the camera button to add your first meal'; 
+ static const String noMealsSavedYet='No meals saved yet';  
+ static const String noMealsLoggedToday='No meals logged today';  
+ static const String mealDeletedSuccessfully='Meal deleted successfully'; 
+ static const String deleteMeal='Delete Meal';    
+ static const String analyzingImage='Analyzing Image';
+ static const String noFoodDetectedInTheImage='No food detected in the image';  
+ static const String pleaseSelectAnImage='Please select an image';
+ static const String failedToAnalyzeImage='Failed to analyze image';  
+ static const String selectImageSource='Select Image Source';
+ static const String camera='Camera';
+ static const String gallery='Gallery';
+ static const String calorieTracker='Calorie Tracker'; 
+ static const String todaySummary='Today Summary';
+ static const String mealsByTime='Meals By Time'; 
+ static const String totalWorkouts='Total Workouts';
+ static const String viewAll='View All';
+ static const String workoutInProgress='Workout in Progress'; 
+ static const String continueWorkout='Continue Workout'; 
+ static const String noWorkoutsYet='No workouts yet';  
+ static const String startYourFirstWorkout='Start your first workout to see your progress here';  
+ static const String myWorkout='My Workout';  
+ static const String startNewWorkout='Start New Workout';
+ static const String workoutName='Workout Name';
+ static const String start='Start';
+ static const String searchExercises='Search Exercises';  
+ static const String all='All'; 
+ static const String selectCategory='Select Category';  
+ static const String selectExercise='Select Exercise'; 
+ static const String objectAdded='object added';  
+ static const String remaining='Remaining';
+ static const String remainingCalories='Remaining Calories';
+ static const String retry='Retry';
+ static const String tryAgain='Try Again';
+ static const String noDataAvailable='No Data Available'; 
+ static const String noDataAvailableMessage='No Data Available';
+ static const String noDataAvailableTitle='No Data Available';
+ static const String todayTracker='Today Tracker';  
+ static const String totalMealsCount='Total Meals Count';
+ static const String totalCalories='Total Calories';
+ static const String macronutrients='Macronutrients';  
+ static const String fats='Fats';
+ static const String noSetsRecorded='No Sets Recorded'; 
+ static const String noExercisesRecorded='No Exercises Recorded';
+ static const String workoutSummary='Workout Summary'; 
+ static const String stepCountError='Step Count Error';
+ static const String pedestrianStatusError='Pedestrian Status Error';
+ static const String activityRecognitionPermission='This app needs activity recognition permission to count your steps. Please grant permission in settings.';
+ static const String activityRecognitionPermissions='This app needs activity recognition permission to track your steps accurately.';
+ static const String updated='Updated';  
+ static const String unavailable='Unavailable';
+ static const String grantPermission='Grant Permission';
+ static const String steps='Steps'; 
+ static const String resetSteps='Reset Steps';  
+ static const String goalReached='Goal Reached';  
+ static const String permissionRequired='Permission Required';  
+ static const String addingMeal='Adding Meal';
+ static const String addingMealSuccess='Meal added successfully';
+ static const String addingMealFailed='Meal adding failed';
+ static const String confirmFoodItem='Confirm Food Item'; 
+ static const String detectedFood='Detected Food';  
+ static const String enterWeightGrams='Enter Weight (grams):';
+ static const String nutritionInformation='Nutrition Information';
+ static const String baseValues='Base Values (per 100g):';
+ static const String addToFoodLog='Add to Food Log';
+ static const String add='Add';
+ static const String end='End';
+ static const String kcal='kcal';
+ static const String saveMeal='Save Meal';  
+ static const String mealTitle='Meal Title';
+ static const String enterMealName='Enter meal name (e.g. Breakfast, Lunch)'; 
+ static const String combined='Combined'; 
+ static const String pleaseSelectAtLeastOneFoodItem='Please select at least one food item';   
+ static const String pleaseEnterMealTitle='Please enter meal title';  
+ static const String savingMeal='Saving Meal';
+ static const String confirmFoodItems='Confirm Food Items';
+ static const String viewSavedMeals='View Saved Meals'; 
+  //error print     
+  static const String splashScreenError = 'SplashScreen Error';
 }
+

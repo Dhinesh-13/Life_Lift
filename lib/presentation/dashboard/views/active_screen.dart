@@ -21,7 +21,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
         title: Container(
           padding: EdgeInsets.only(top: 30.0, left: 10.0, bottom: 10.0),
           child: Text(
-            'Activities',
+            TextHelper.activities,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -40,7 +40,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Choose Your Activity',
+                TextHelper.chooseYourActivity ,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

@@ -81,7 +81,7 @@ class _WalkingScreenState extends State<WalkingScreen>
   }
 
   void _onStepCountError(error) {
-    debugPrint('Step count error: $error');
+    debugPrint(TextHelper.stepCountError);
   }
 
   void _onPedestrianStatusChanged(PedestrianStatus event) {
@@ -89,8 +89,8 @@ class _WalkingScreenState extends State<WalkingScreen>
   }
 
   void _onPedestrianStatusError(error) {
-    context.read<StepCountCubit>().updatePedestrianStatus('unavailable');
-    debugPrint('Pedestrian status error: $error');
+    context.read<StepCountCubit>().updatePedestrianStatus(TextHelper.unavailable);
+    debugPrint(TextHelper.pedestrianStatusError);
   }
 
   void _showPermissionDialog() {
@@ -103,7 +103,7 @@ class _WalkingScreenState extends State<WalkingScreen>
           style: const TextStyle(fontFamily: 'Roboto'),
         ),
         content: Text(
-          'This app needs activity recognition permission to count your steps. Please grant permission in settings.',
+          TextHelper.activityRecognitionPermission,
           style: const TextStyle(fontFamily: 'Roboto'),
         ),
         actions: [
@@ -145,7 +145,7 @@ class _WalkingScreenState extends State<WalkingScreen>
           controller: controller,
           keyboardType: TextInputType.number,
           decoration: const InputDecoration(
-            labelText: 'Steps',
+            labelText: TextHelper.steps,
             border: OutlineInputBorder(),
           ),
         ),
@@ -203,7 +203,7 @@ class _WalkingScreenState extends State<WalkingScreen>
               context.read<StepCountCubit>().resetSteps();
             },
             icon: const Icon(Icons.refresh),
-            tooltip: 'Reset Steps',
+            tooltip:  TextHelper.resetSteps,
           ),
         ],
       ),
@@ -294,8 +294,8 @@ class _WalkingScreenState extends State<WalkingScreen>
                           ),
                           Text(
                             state.goalReached
-                                ? 'Goal Reached! 🎉'
-                                : 'Steps Today',
+                                ? TextHelper.goalReached
+                                : TextHelper.stepsToday,
                             style: const TextStyle(
                               fontSize: 18,
                               color: Colors.black,
@@ -312,7 +312,7 @@ class _WalkingScreenState extends State<WalkingScreen>
                     children: [
                       Expanded(
                         child: _buildStatCard(
-                          'Distance',
+                          TextHelper.distance,
                           '${state.distanceKm.toStringAsFixed(2)} km',
                           Icons.straighten,
                           Colors.blue,
@@ -321,7 +321,7 @@ class _WalkingScreenState extends State<WalkingScreen>
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildStatCard(
-                          'Calories',
+                          TextHelper.calories,
                           '${state.caloriesBurned} cal',
                           Icons.local_fire_department,
                           Colors.orange,
@@ -346,8 +346,8 @@ class _WalkingScreenState extends State<WalkingScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Daily Goal Progress',
+                              Text(
+                                TextHelper.dailyGoalProgress,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -375,7 +375,7 @@ class _WalkingScreenState extends State<WalkingScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '${state.totalSteps}/${state.dailyGoal} steps',
+                                '${state.totalSteps}/${state.dailyGoal} ${TextHelper.steps}',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
@@ -395,7 +395,7 @@ class _WalkingScreenState extends State<WalkingScreen>
                             Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: Text(
-                                '${state.remainingSteps} steps remaining',
+                                '${state.remainingSteps} ${TextHelper.steps}  ${TextHelper.remaining} ',
                                 style: TextStyle(
                                   color: Colors.blue[600],
                                   fontSize: 12,
@@ -432,14 +432,14 @@ class _WalkingScreenState extends State<WalkingScreen>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Status: ${_getStatusText(state.pedestrianStatus)}',
+                                      '${TextHelper.status}: ${_getStatusText(state.pedestrianStatus)}',
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     Text(
-                                      'Updated: ${_formatTime(state.lastUpdated)}',
+                                      '${TextHelper.updated}: ${_formatTime(state.lastUpdated)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[600],
@@ -473,14 +473,14 @@ class _WalkingScreenState extends State<WalkingScreen>
             Icon(Icons.security, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
-              'Permission Required',
+              TextHelper.permissionRequired,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Text(
-              'This app needs activity recognition permission to track your steps accurately.',
+              TextHelper.activityRecognitionPermissions,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
@@ -490,7 +490,7 @@ class _WalkingScreenState extends State<WalkingScreen>
                 await _initPedometer();
               },
               icon: const Icon(Icons.settings),
-              label: const Text('Grant Permission'),
+              label: const Text(TextHelper.grantPermission),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -584,7 +584,7 @@ class _WalkingScreenState extends State<WalkingScreen>
     } else if (difference.inHours < 24) {
       return '${difference.inHours}h ago';
     } else {
-      return '${dateTime.day}/${dateTime.month} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+      return '${dateTime.day}/${dateTime  .month} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
   }
 }

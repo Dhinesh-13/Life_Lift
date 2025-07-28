@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/data/model/workout_models.dart';
+import 'package:lift_life/helper/nav_helper/nav_helper.dart';
+import 'package:lift_life/helper/routes.dart';
 import 'package:lift_life/presentation/dashboard/cubit/gym_cubit.dart';
 import 'active_workout_screen.dart';
-import 'exercise_selection_screen.dart';
 import 'workout_detail_screen.dart';
 import 'package:lift_life/helper/ColorHelper.dart';
 import 'package:lift_life/helper/TextHelper.dart';
@@ -44,11 +45,15 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
   }
 
   void refreshIndicator() {
-    context.read<GymCubit>().loadData();
+    setState(() {
+      print('refresh sucess');
+       context.read<GymCubit>().loadData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    refreshIndicator();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -98,7 +103,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           return RefreshIndicator(
             onRefresh: () async {
               // Reload data
-              await refreshIndicator;
+              await context.read<GymCubit>().loadData();
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -183,8 +188,8 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                     children: [
                       Expanded(
                         child: _buildGymStatCard(
-                          'Calories',
-                          '${state.totalCaloriesThisWeek} cal',
+                          TextHelper.calories,
+                          '${state.totalCaloriesThisWeek} ${TextHelper.calories}',
                           Icons.local_fire_department,
                           Colors.orange,
                         ),
@@ -192,7 +197,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildGymStatCard(
-                          'Total Workouts',
+                          TextHelper.totalWorkouts,
                           '${state.totalWorkouts}',
                           Icons.fitness_center,
                           Colors.purple,
@@ -206,7 +211,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Recent Workouts',
+                        TextHelper.recentWorkouts,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -219,7 +224,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                             // Navigate to full history
                           },
                           child: const Text(
-                            'View All',
+                            TextHelper.viewAll,
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -287,7 +292,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
             ),
             const SizedBox(height: 12),
             Text(
-              'Ready for Today\'s',
+              TextHelper.readyForToday,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -295,7 +300,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
               ),
             ),
             const Text(
-              'Workout?',
+              TextHelper.workouts,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -323,9 +328,6 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         _showStartWorkoutDialog();
-                         context.read<GymCubit>().loadData();
-                        setState(()  {
-                        });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -337,8 +339,8 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                         ),
                       ),
                       icon: Icon(Icons.play_arrow, size: 20),
-                      label: const Text(
-                        'Start Workout',
+                      label: Text(
+                        TextHelper.startWorkout,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -366,17 +368,21 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                       ],
                     ),
                     child: OutlinedButton.icon(
-                      onPressed: () async {
-                        // Use the same cubit instance, don't create new one
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider.value(
-                              value: context.read<GymCubit>(),
-                              child: const ExerciseSelectionScreen(),
-                            ),
-                          ),
+                      onPressed: () {
+                        navigateToScreen(
+                          Routes.exerciseSelectionScreen,
+                          arguments: {'isSelectingForWorkout': false},
                         );
+                        // Use the same cubit instance, don't create new one
+                        // final result =  Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => BlocProvider.value(
+                        //       value: context.read<GymCubit>(),
+                        //       child: const ExerciseSelectionScreen(),
+                        //     ),
+                        //   ),
+                        // );
                         // Refresh data when coming back
                         if (mounted) {
                           context.read<GymCubit>().loadData();
@@ -391,9 +397,9 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      icon: const Icon(Icons.list, size: 20),
-                      label: const Text(
-                        'Exercises',
+                      icon: Icon(Icons.list, size: 20),
+                      label: Text(
+                        TextHelper.exercises,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -449,6 +455,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                 onPressed: () async {
                   // Use the same cubit instance
                   refreshIndicator();
+
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -476,7 +483,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
             ),
             const SizedBox(height: 4),
             Text(
-              'Workout in Progress',
+              TextHelper.workoutInProgress,
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
             const SizedBox(height: 4),
@@ -502,17 +509,8 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
               ),
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider.value(
-                        value: context.read<GymCubit>(),
-                        child: const ActiveWorkoutScreen(),
-                      ),
-                    ),
-                  );
-                  // No need to call loadData() since using same cubit instance
-                  // State changes in ActiveWorkoutScreen will automatically reflect here
+                  refreshIndicator();
+                  navigateToScreen(Routes.activeWorkoutScreen);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
@@ -524,8 +522,8 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                   ),
                 ),
                 icon: const Icon(Icons.fitness_center, size: 20),
-                label: const Text(
-                  'Continue Workout',
+                label: Text(
+                  TextHelper.workoutInProgress,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
@@ -563,7 +561,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           child: Icon(Icons.fitness_center, color: Colors.grey[600], size: 20),
         ),
         title: Text(
-          workout.name,
+          TextHelper.workoutInProgress,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Text(
@@ -580,6 +578,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           ],
         ),
         onTap: () {
+          // navigateToScreen(Routes.workoutDetailScreen, arguments: {'workout': workout});
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -600,7 +599,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           Icon(Icons.fitness_center, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 12),
           Text(
-            'No workouts yet',
+            TextHelper.noWorkoutsYet,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -609,7 +608,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           ),
           const SizedBox(height: 6),
           Text(
-            'Start your first workout to see your progress here',
+            TextHelper.startYourFirstWorkout,
             style: TextStyle(color: Colors.grey[500], fontSize: 12),
             textAlign: TextAlign.center,
           ),
@@ -641,6 +640,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           color: Colors.white.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),
         ),
+
         child: Column(
           children: [
             Container(
@@ -670,65 +670,33 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
   }
 
   void _showStartWorkoutDialog() {
-    final controller = TextEditingController(text: 'My Workout');
+    final controller = TextEditingController(text: 'Fit Time');
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Start New Workout'),
+        title: const Text(TextHelper.startNewWorkout),
         content: TextField(
           controller: controller,
+          style: const TextStyle(color: Colors.black),
           decoration: const InputDecoration(
-            labelText: 'Workout Name',
+            labelText: TextHelper.workoutName,
             border: OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text(TextHelper.cancel),
           ),
-          // ElevatedButton(
-          //   onPressed: ()async {
-          //     Navigator.pop(context);
-          //     await context.read<GymCubit>().startWorkout(controller.text);
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => const ActiveWorkoutScreen(),
-          //       ),
-          //     );
-          //   },
-          //   child: const Text('Start'),
-          // ),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(context);
-
-              try {
-                // Start workout and wait for completion
-                await context.read<GymCubit>().startWorkout(controller.text);
-                // setState(()async {
-                //   await context.read<GymCubit>().loadData();
-                // });
-
-                // Navigate to active workout screen
-                if (context.mounted) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ActiveWorkoutScreen(),
-                    ),
-                  );
-                }
-              } catch (e) {
-                // Handle error if needed
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to start workout: $e')),
-                );
-              }
+              context.read<GymCubit>().startWorkout(controller.text);
+              refreshIndicator();
+              navigateToScreen(Routes.activeWorkoutScreen);
             },
-            child: const Text('Start'),
+            child: const Text(TextHelper.start),
           ),
         ],
       ),

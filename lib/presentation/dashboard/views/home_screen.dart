@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 import 'package:lift_life/presentation/dashboard/cubit/food_log_cubit.dart';
 import 'package:lift_life/presentation/dashboard/widgets/MacroProgressBar.dart';
 import 'package:lift_life/presentation/dashboard/widgets/calorie_progress_widget.dart';
@@ -44,7 +45,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Error: ${state.error}',
+                      TextHelper.error + ': ${state.error}',
                       style: TextStyle(
                         color: Colors.red[600],
                         fontSize: 16,
@@ -56,7 +57,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                       onPressed: () {
                         context.read<FoodLogCubit>().loadAllMealsByTimeWithGoal();
                       },
-                      child: const Text('Retry'),
+                      child: const Text(TextHelper.retry),
                     ),
                   ],
                 ),
@@ -85,7 +86,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              "Today's Tracker",
+                              TextHelper.todayTracker,
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -112,7 +113,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            '$totalMealsCount meals',
+                            TextHelper.totalMealsCount + '$totalMealsCount meals',
                             style: TextStyle(
                               color: Colors.blue[800],
                               fontWeight: FontWeight.w600,
@@ -156,8 +157,8 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                                 size: 24,
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                "Macronutrients",
+                              Text(
+                                TextHelper.macronutrients,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -168,7 +169,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                           ),
                           const SizedBox(height: 20),
                           MacroProgressBar(
-                            label: "Protein",
+                            label: TextHelper.protein,
                             current: state.totalProtein,
                             goal: _calculateProteinGoal(state.dailyCalorieGoal ?? 2000),
                             color: Colors.red[500]!,
@@ -177,7 +178,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                           ),
                           const SizedBox(height: 20),
                           MacroProgressBar(
-                            label: "Carbs",
+                            label: TextHelper.carbs,
                             current: state.totalCarbs,
                             goal: _calculateCarbsGoal(state.dailyCalorieGoal ?? 2000),
                             color: Colors.blue[500]!,
@@ -186,7 +187,7 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                           ),
                           const SizedBox(height: 20),
                           MacroProgressBar(
-                            label: "Fats",
+                            label: TextHelper.fats,
                             current: state.totalFat,
                             goal: _calculateFatsGoal(state.dailyCalorieGoal ?? 2000),
                             color: Colors.orange[500]!,
@@ -215,19 +216,19 @@ class _FoodTrackerHomeScreenState extends State<FoodTrackerHomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _buildQuickStat(
-                              'Meals',
+                              TextHelper.meals,
                               totalMealsCount.toString(),
                               Icons.restaurant,
                               Colors.blue[600]!,
                             ),
                             _buildQuickStat(
-                              'Calories',
+                              TextHelper.calories,
                               state.totalCalories.toInt().toString(),
                               Icons.local_fire_department,
                               Colors.orange[600]!,
                             ),
                             _buildQuickStat(
-                              'Remaining',
+                              TextHelper.remaining,
                               ((state.dailyCalorieGoal ?? 2000) - state.totalCalories)
                                   .toInt()
                                   .toString(),

@@ -304,7 +304,7 @@ class FoodRepositoryImpl implements FoodRepository {
       
       return mealTimesMap;
     } catch (e) {
-      print('Error parsing meal times map: $e');
+      print('Error parsing meal    times map: $e');
       return {};
     }
   }

@@ -177,7 +177,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                     children: [
                       Expanded(
                         child: _buildGymStatCard(
-                          'Calories',
+                          TextHelper.calories,
                           '${state.totalCaloriesThisWeek} cal',
                           Icons.local_fire_department,
                           Colors.orange,
@@ -186,7 +186,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildGymStatCard(
-                          'Total Workouts',
+                          TextHelper.totalWorkouts,
                           '${state.totalWorkouts}',
                           Icons.fitness_center,
                           Colors.purple,
@@ -200,7 +200,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Recent Workouts',
+                        TextHelper.recentWorkouts,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -213,7 +213,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                             // Navigate to full history
                           },
                           child: const Text(
-                            'View All',
+                            TextHelper.viewAll,
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -281,7 +281,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
             ),
             const SizedBox(height: 12),
             Text(
-              'Ready for Today\'s',
+              TextHelper.readyForToday,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -289,7 +289,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
               ),
             ),
             const Text(
-              'Workout?',
+              TextHelper.workout,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -328,8 +328,8 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                         ),
                       ),
                       icon: Icon(Icons.play_arrow, size: 20),
-                      label: const Text(
-                        'Start Workout',
+                      label: Text(
+                        TextHelper.startWorkout,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -382,9 +382,9 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      icon: const Icon(Icons.list, size: 20),
-                      label: const Text(
-                        'Exercises',
+                      icon: Icon(Icons.list, size: 20),
+                      label: Text(
+                        TextHelper.exercises,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -466,12 +466,12 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
             ),
             const SizedBox(height: 4),
             Text(
-              'Workout in Progress',
+              TextHelper.workoutInProgress,
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
             const SizedBox(height: 4),
             Text(
-              '${workout.exercises.length} exercises • ${workout.totalSets} sets',
+              '${workout.exercises.length} ${TextHelper.exercises} • ${workout.totalSets} ${TextHelper.sets}',
               style: TextStyle(fontSize: 11, color: Colors.grey[500]),
             ),
             const SizedBox(height: 12),
@@ -517,8 +517,8 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                   ),
                 ),
                 icon: Icon(Icons.fitness_center, size: 20),
-                label: const Text(
-                  'Continue Workout',
+                label: Text(
+                  TextHelper.continueWorkout,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
@@ -560,7 +560,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Text(
-          '${_formatDate(workout.date)} • ${workout.exercises.length} exercises • ${workout.duration ?? 0}m • ${workout.estimatedCalories ?? 0} cal',
+          '${_formatDate(workout.date)} • ${workout.exercises.length} ${TextHelper.exercises} • ${workout.duration ?? 0}m • ${workout.estimatedCalories ?? 0} cal',
           style: const TextStyle(fontSize: 11),
         ),
         trailing: Row(
@@ -593,7 +593,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           Icon(Icons.fitness_center, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 12),
           Text(
-            'No workouts yet',
+            TextHelper.noWorkoutsYet,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -602,7 +602,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
           ),
           const SizedBox(height: 6),
           Text(
-            'Start your first workout to see your progress here',
+            TextHelper.startYourFirstWorkout,
             style: TextStyle(color: Colors.grey[500], fontSize: 12),
             textAlign: TextAlign.center,
           ),
@@ -663,24 +663,24 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
   }
 
   void _showStartWorkoutDialog() {
-    final controller = TextEditingController(text: 'My Workout');
+    final controller = TextEditingController(text: TextHelper.myWorkout);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text('Start New Workout'),
+        title: const Text(TextHelper.startNewWorkout),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
-            labelText: 'Workout Name',
+            labelText: TextHelper.workoutName,
             border: OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text(TextHelper.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -701,7 +701,7 @@ class _GymScreenState extends State<GymScreen> with WidgetsBindingObserver {
                 context.read<GymCubit>().loadData();
               }
             },
-            child: const Text('Start'),
+            child: Text(TextHelper.start),
           ),
         ],
       ),

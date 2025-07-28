@@ -6,7 +6,7 @@ class ThemeHelper {
     return ThemeData(
       primaryColor: ColorHelper.primaryColor,
       scaffoldBackgroundColor: ColorHelper.backgroundColor,
-      
+
       fontFamily: 'Roboto', // Change if you use a custom font
       appBarTheme: AppBarTheme(
         backgroundColor: ColorHelper.backgroundColor,
@@ -21,15 +21,27 @@ class ThemeHelper {
         elevation: 0,
       ),
       textTheme: TextTheme(
-        bodyLarge: TextStyle(color: ColorHelper.textColor, fontFamily: 'Roboto'),
-        bodyMedium: TextStyle(color: ColorHelper.textColor, fontFamily: 'Roboto'),
+        bodyLarge: TextStyle(
+          color: ColorHelper.textColor,
+          fontFamily: 'Roboto',
+        ),
+        bodyMedium: TextStyle(
+          color: ColorHelper.textColor,
+          fontFamily: 'Roboto',
+        ),
         // Add more as needed
       ),
       colorScheme: ColorScheme.fromSwatch().copyWith(
         secondary: ColorHelper.accentColor,
         error: ColorHelper.errorColor,
       ),
-    
+      inputDecorationTheme: InputDecorationTheme(
+        labelStyle: TextStyle(color: Colors.black),
+        hintStyle: TextStyle(color: Colors.black54),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lift_life/data/model/workout_models.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 
 class WorkoutDetailScreen extends StatelessWidget {
   final Workout workout;
@@ -24,7 +25,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Workout Summary',
+                      TextHelper.workoutSummary,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 12),
@@ -32,22 +33,22 @@ class WorkoutDetailScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _buildSummaryItem(
-                          'Duration',
+                          TextHelper.duration,
                           '${workout.duration ?? 0}m',
                           Icons.timer,
                         ),
                         _buildSummaryItem(
-                          'Exercises',
+                          TextHelper.exercises,
                           '${workout.exercises.length}',
                           Icons.fitness_center,
                         ),
                         _buildSummaryItem(
-                          'Sets',
+                          TextHelper.sets,
                           '${workout.totalSets}',
                           Icons.repeat,
                         ),
                         _buildSummaryItem(
-                          'Calories',
+                          TextHelper.calories,
                           '${workout.estimatedCalories ?? 0}',
                           Icons.local_fire_department,
                         ),
@@ -61,7 +62,7 @@ class WorkoutDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Exercises
-            Text('Exercises', style: Theme.of(context).textTheme.titleLarge),
+            Text(TextHelper.exercises, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
 
             ...workout.exercises.map(
@@ -107,13 +108,13 @@ class WorkoutDetailScreen extends StatelessWidget {
                   SizedBox(width: 40),
                   Expanded(
                     child: Text(
-                      'Reps',
+                      TextHelper.reps,
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                   Expanded(
                     child: Text(
-                      'Weight',
+                      TextHelper.weight,
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -135,7 +136,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                 );
               }).toList(),
             ] else
-              const Text('No sets recorded'),
+              const Text(TextHelper.noSetsRecorded),
           ],
         ),
       ),

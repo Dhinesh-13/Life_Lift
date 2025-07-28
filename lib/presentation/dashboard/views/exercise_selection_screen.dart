@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/data/model/workout_models.dart';
+import 'package:lift_life/helper/TextHelper.dart';
+import 'package:lift_life/helper/nav_helper/nav_helper.dart';
+import 'package:lift_life/helper/routes.dart';
 import 'package:lift_life/presentation/dashboard/cubit/gym_cubit.dart';
 
 class ExerciseSelectionScreen extends StatefulWidget {
@@ -26,8 +29,8 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          widget.isSelectingForWorkout ? 'Add Exercise' : 'Exercises',
-        ),
+          widget.isSelectingForWorkout ? TextHelper.addExercise : TextHelper.exercises,
+        ),  
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
@@ -45,7 +48,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                   children: [
                     TextField(
                       decoration: const InputDecoration(
-                        hintText: 'Search exercises...',
+                        hintText: TextHelper.searchExercises,
                         prefixIcon: Icon(Icons.search),
                         border: OutlineInputBorder(),
                       ),
@@ -104,7 +107,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   List<Exercise> _filterExercises(List<Exercise> exercises) {
     return exercises.where((exercise) {
       final matchesCategory =
-          _selectedCategory == 'All' || exercise.category == _selectedCategory;
+          _selectedCategory == TextHelper.all || exercise.category == _selectedCategory;
       final matchesSearch =
           _searchQuery.isEmpty ||
           exercise.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -115,7 +118,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   List<String> _getCategories(List<Exercise> exercises) {
-    final categories = <String>{'All'};
+    final categories = <String>{TextHelper.all};
     for (final exercise in exercises) {
       categories.add(exercise.category);
     }
@@ -128,6 +131,8 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       onTap: widget.isSelectingForWorkout?() {
         context.read<GymCubit>().addExerciseToWorkout(exercise);
         Navigator.pop(context);
+        print(TextHelper.objectAdded);
+        // navigateToScreen(Routes.activeWorkoutScreen);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${exercise.name} added to workout'),
@@ -174,23 +179,6 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
               ),
             ],
           ),
-        //   trailing: widget.isSelectingForWorkout
-        //       ? IconButton(
-        //           onPressed: () {
-        //             context.read<GymCubit>().addExerciseToWorkout(exercise);
-        //             Navigator.pop(context);
-        //             ScaffoldMessenger.of(context).showSnackBar(
-        //               SnackBar(
-        //                 content: Text('${exercise.name} added to workout'),
-        //                 backgroundColor: Colors.green,
-        //               ),
-        //             );
-        //           },
-        //           icon: const Icon(Icons.add_circle, size: 30.0),
-        //           color: Colors.black,
-        //         )
-        //       : Icon(Icons.fitness_center, color: Colors.grey[600]),
-        //   isThreeLine: true,
         ),
       ),
     );

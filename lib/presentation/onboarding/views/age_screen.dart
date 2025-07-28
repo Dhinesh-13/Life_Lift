@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lift_life/generated/assets.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 import 'package:lift_life/helper/nav_helper/nav_helper.dart';
 import 'package:lift_life/helper/routes.dart';
 import 'package:lift_life/presentation/onboarding/widget/onboarding_button.dart';
@@ -66,7 +67,7 @@ class _AgeScreenState extends State<AgeScreen> {
                 children: [
                   Center(
                     child: const Text(
-                      'Enter Your Age',
+                      TextHelper.enterYourAge,
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -99,7 +100,7 @@ class _AgeScreenState extends State<AgeScreen> {
                       decoration: InputDecoration(
                        
                         prefixIcon: Icon(Icons.cake, color: ColorHelper.primaryColor),
-                        suffixText: 'years',
+                        suffixText: TextHelper.years,
                         suffixStyle: TextStyle(
                           color: ColorHelper.borderColor,
                           fontSize: 16,
@@ -125,7 +126,7 @@ class _AgeScreenState extends State<AgeScreen> {
               children: [
                 Expanded(
                   child: onboardingButton(
-                    text: 'Back',
+                    text: TextHelper.back,
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -134,7 +135,7 @@ class _AgeScreenState extends State<AgeScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: onboardingButton(
-                    text: 'Next',
+                    text: TextHelper.next,
                     onPressed: () async {
                       if (_ageController.text.isNotEmpty) {
                         final age = int.tryParse(_ageController.text);

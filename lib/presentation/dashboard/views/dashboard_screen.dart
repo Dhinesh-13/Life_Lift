@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lift_life/helper/TextHelper.dart';
 import 'package:lift_life/presentation/dashboard/views/active_screen.dart';
 import 'package:lift_life/presentation/dashboard/views/caloriesTracker_screen.dart';
 import 'package:lift_life/presentation/dashboard/views/home_screen.dart';
@@ -34,11 +35,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.connect_without_contact_sharp),
-            label: 'Tracker',
+            label: TextHelper.calorieTracker,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.fitness_center),
-            label: 'Activities',
+            label: TextHelper.activities,
           ),
         ],
       ),

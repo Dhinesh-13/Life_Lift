@@ -4,9 +4,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lift_life/data/model/workout_models.dart';
+import 'package:lift_life/helper/TextHelper.dart';
+import 'package:lift_life/helper/nav_helper/nav_helper.dart';
+import 'package:lift_life/helper/routes.dart';
 import 'package:lift_life/presentation/dashboard/cubit/gym_cubit.dart';
 import 'exercise_selection_screen.dart';
-
+import 'package:lift_life/helper/ColorHelper.dart';
 class ActiveWorkoutScreen extends StatefulWidget {
   const ActiveWorkoutScreen({super.key});
 
@@ -17,13 +20,14 @@ class ActiveWorkoutScreen extends StatefulWidget {
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   final Color baseBlue = Colors.blue[100]!;
   Timer? _timer;
-  
+
   @override
   void initState() {
     super.initState();
+    // Only update the timer display, not reload data every second
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
-        setState(() {}); // This will update the duration display
+        setState(() {}); // Just rebuild UI for timer display
       }
     });
   }
@@ -42,8 +46,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
         if (workout == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Workout')),
-            body: const Center(child: Text('No active workout')),
+            appBar: AppBar(title: const Text(TextHelper.workout)),
+            body: const Center(child: Text(TextHelper.noActiveWorkout)),
           );
         }
 
@@ -69,30 +73,30 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               actions: [
                 PopupMenuButton<String>(
                   onSelected: (value) {
-                    if (value == 'finish') {
+                    if (value == TextHelper.finish) {
                       _showFinishWorkoutDialog();
-                    } else if (value == 'cancel') {
+                    } else if (value == TextHelper.cancel) {
                       _showCancelWorkoutDialog();
                     }
                   },
                   itemBuilder: (context) => [
                     PopupMenuItem(
-                      value: 'finish',
+                      value: TextHelper.finish,
                       child: Row(
                         children: [
                           Icon(Icons.check, color: baseBlue),
                           const SizedBox(width: 8),
-                          const Text('Finish Workout'),
+                          Text(TextHelper.finishWorkout),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
-                      value: 'cancel',
+                    PopupMenuItem(
+                      value: TextHelper.cancel,
                       child: Row(
                         children: [
                           Icon(Icons.close, color: Colors.red),
                           SizedBox(width: 8),
-                          Text('Cancel Workout'),
+                          Text(TextHelper.cancelWorkout),
                         ],
                       ),
                     ),
@@ -115,17 +119,17 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildTimerStat(
-                        'Duration',
+                        TextHelper.duration,
                         _getWorkoutDuration(workout.startTime!),
                         Icons.timer,
                       ),
                       _buildTimerStat(
-                        'Exercises',
+                        TextHelper.exercises,
                         '${workout.exercises.length}',
                         Icons.fitness_center,
                       ),
                       _buildTimerStat(
-                        'Sets',
+                        TextHelper.sets,
                         '${workout.totalSets}',
                         Icons.repeat,
                       ),
@@ -152,22 +156,23 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             ),
             floatingActionButton: FloatingActionButton.extended(
               onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: context.read<GymCubit>(),
-                      child: const ExerciseSelectionScreen(
-                        isSelectingForWorkout: true,
-                      ),
-                    ),
-                  ),
-                );
+                navigateToScreen(Routes.exerciseSelectionScreen,arguments: {'isSelectingForWorkout': true}); 
+                // await Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => BlocProvider.value(
+                //       value: context.read<GymCubit>(),
+                //       child: const ExerciseSelectionScreen(
+                //         isSelectingForWorkout: true,
+                //       ),
+                //     ),
+                //   ),
+                // );
                 // No need to call loadData() since using same cubit instance
               },
               icon: const Icon(Icons.add, color: Colors.black),
               label: const Text(
-                'Add Exercise',
+                TextHelper.addExercise,
                 style: TextStyle(color: Colors.black),
               ),
               backgroundColor: Colors.white,
@@ -202,15 +207,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             Icon(Icons.fitness_center, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'No exercises added yet',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(color: Colors.grey[600]),
+              TextHelper.noExercisesAddedYet,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.grey[600],
+                  ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Tap the + button to add exercises to your workout',
+             Text(
+              TextHelper.tapThePlusButtonToAddExercisesToYourWorkout,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
@@ -285,9 +289,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'No sets added yet',
+                    TextHelper.noSetsAddedYet,
                     style: TextStyle(color: Colors.grey),
                   ),
                 ),
@@ -303,14 +307,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                         SizedBox(
                           width: 40,
                           child: Text(
-                            'Set',
+                            TextHelper.sets,
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                         SizedBox(width: 20),
                         Expanded(
                           child: Text(
-                            'Reps',
+                            TextHelper.reps,
                             style: TextStyle(fontWeight: FontWeight.w600),
                             textAlign: TextAlign.center,
                           ),
@@ -318,7 +322,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                         SizedBox(width: 20),
                         Expanded(
                           child: Text(
-                            'Weight',
+                            TextHelper.weight,
                             style: TextStyle(fontWeight: FontWeight.w600),
                             textAlign: TextAlign.center,
                           ),
@@ -381,14 +385,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text('Remove Exercise'),
+        title: const Text(TextHelper.removeExercise),
         content: Text(
-          'Are you sure you want to remove "$exerciseName" from your workout?',
+          '${TextHelper.areYouSureYouWantToRemove} $exerciseName ${TextHelper.fromYourWorkout}',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+            child: const Text(TextHelper.cancel, style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -399,7 +403,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('$exerciseName removed from workout'),
+                    content: Text('$exerciseName ${TextHelper.removedFromWorkout}'),
                     backgroundColor: Colors.red,
                     duration: const Duration(seconds: 2),
                   ),
@@ -407,7 +411,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Remove', style: TextStyle(color: Colors.white)),
+            child: const Text(TextHelper.remove, style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -422,7 +426,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text('Add Set'),
+        title: const Text(TextHelper.addSet),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -431,7 +435,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 focusColor: Colors.black,
-                labelText: 'Reps',
+                labelText: TextHelper.reps,
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.black54, width: 1.5),
@@ -443,7 +447,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               controller: weightController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: 'Weight (kg)',
+                labelText: TextHelper.weight,
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.black54, width: 1.5),
@@ -455,7 +459,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+            child: const Text(TextHelper.cancel, style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -472,14 +476,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Please enter valid reps and weight values'),
+                    content: Text(TextHelper.pleaseEnterValidRepsAndWeightValues),
                     backgroundColor: Colors.red,
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: baseBlue),
-            child: const Text('Add Set', style: TextStyle(color: Colors.black)),
+            child: const Text(TextHelper.addSet, style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
@@ -491,12 +495,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text('Finish Workout'),
-        content: const Text('Are you sure you want to finish this workout?'),
+        title: const Text(TextHelper.finishWorkout),
+        content: const Text(TextHelper.areYouSureYouWantToFinishThisWorkout),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+            child: const Text(TextHelper.cancel, style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -507,7 +511,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                 Navigator.pop(context); // Close workout screen
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Workout completed! 🎉'),
+                    content: Text(TextHelper.workoutCompletedMessage),
                     backgroundColor: Colors.green,
                     duration: Duration(seconds: 3),
                   ),
@@ -522,14 +526,15 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     );
   }
 
+  // FIXED: Proper dialog and navigation handling
   void _showCancelWorkoutDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text('Cancel Workout'),
+        title: const Text(TextHelper.cancelWorkout),
         content: const Text(
-          'Are you sure you want to cancel this workout? All progress will be lost.',
+          TextHelper.areYouSureYouWantToCancelThisWorkout,
         ),
         actions: [
           TextButton(
@@ -541,23 +546,26 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context); // Close dialog first
-              await context.read<GymCubit>().cancelWorkout();
-
+               await context.read<GymCubit>().cancelWorkout();
+              Navigator.pop(context); // Close dialog FIRST
+              
+             
+              
               if (mounted) {
+                 await context.read<GymCubit>().loadData();
                 Navigator.pop(context); // Close workout screen
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Workout cancelled'),
-                    backgroundColor: Colors.orange,
+                    content: Text(TextHelper.workoutCancelled),
+                    backgroundColor: ColorHelper.primaryColor,
                     duration: Duration(seconds: 2),
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text(
-              'Cancel Workout',
+            child: Text(
+                TextHelper.cancelWorkout,
               style: TextStyle(color: Colors.white),
             ),
           ),
